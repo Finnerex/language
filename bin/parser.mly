@@ -1,0 +1,99 @@
+%{
+  open Ast
+%}
+
+(* Litterals *)
+%token <int> INT_LIT
+%token <bool> BOOL_LIT
+(* %token <string> STRING_LIT
+%token <char> CHAR_LIT
+%token <float> FLOAT_LIT *)
+
+%token TYPE
+
+%token LPAREN RPAREN
+(* %token LSCOPE RSCOPE *)
+
+(* Arithmetic operators *)
+%token PLUS MINUS
+%token TIMES DIV
+
+(* Boolean opperators *)
+%token AND OR NOT BOOL_EQUALS
+
+%token TERNARY_QUESTIONMARK TERNARY_COLON
+
+%token ENDLINE
+%token EOF
+
+(* precedents, lower first *)
+%right OR 
+%right AND
+%left BOOL_EQUALS
+%left PLUS MINUS
+%left TIMES DIV
+%right NOT
+
+
+(* actual parsing *)
+
+%start program (* not sure what this means *)
+%type <Ast.expr> program
+
+%%
+
+program:
+| expression EOF (* this will have to be parsed as a list of statements/lines somehow at some point *)
+  { $1 }
+;
+
+(* statement:
+| expression ENDLINE
+  { $1 }
+| statement ENDLINE
+  { $1 } *)
+
+expression:
+
+(* litterals *)
+| INT_LIT
+  { Int $1 }
+| MINUS INT_LIT
+  { Int (-$2) }
+
+| BOOL_LIT
+  { Bool $1 }
+
+(* mathematical expressions *)
+| expression PLUS expression (* { $1 + $3 } *)
+  { Plus($1, $3) }
+
+| expression MINUS expression (* { $1 - $3 } *)
+  { Minus($1, $3) }
+
+| expression TIMES expression (* { $1 * $3 } *)
+  { Times($1, $3) }
+
+| expression DIV expression (* { $1 / $3 } *)
+  { Div($1, $3) }
+
+(* boolean expressions *)
+| expression AND expression
+  { And($1, $3) }
+
+| expression OR expression
+  { Or($1, $3) }
+
+| expression BOOL_EQUALS expression
+  { Equals($1, $3) }
+
+| NOT expression
+  { Not($2) }
+
+| expression TERNARY_QUESTIONMARK expression TERNARY_COLON expression
+  { Ternary($1, $3, $5) }
+
+| LPAREN expression RPAREN
+  { $2 }
+
+;
