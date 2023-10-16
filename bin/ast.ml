@@ -1,9 +1,15 @@
 (* ass syntax tree *)
 
+(* Identifier *)
+type ident = Ident of string
+
+(* Expressions *)
 type expr =
 (* basic types *)
 | Int of int
 | Bool of bool
+
+| Var of ident
 
 (* boolean expressions *)
 | And of expr * expr
@@ -19,5 +25,7 @@ type expr =
 
 | Ternary of expr * expr * expr
 
-(* type statement =
-| If of expression * (statement list) *)
+(* Statements *)
+type statement =
+| Assign of ident * expr
+| Print of expr
