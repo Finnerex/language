@@ -30,7 +30,6 @@
 
 %token ENDLINE
 %token EOF
-%token SEMICOLON
 
 (* precedents, lower prec comes first *)
 %left TERNARY_QUESTIONMARK TERNARY_COLON
@@ -45,17 +44,24 @@
 (* actual parsing *)
 
 %start program
-%type <Ast.expr> program
+%type <Ast.statement list> program
 
 %%
 
 program:
-| seperated_list(statement, SEMICOLON) EOF
+| separated_list(ENDLINE, statement) EOF
   { $1 }
 ;
 
 statement:
-| 
+| ident ASSIGN_EQUALS expression
+  { Assign ($1, $3) }
+| PRINT expression
+  { PrintStm $2 }
+
+ident:
+| IDENT
+  { Ident $1 }
 
 expression:
 (* litterals *)

@@ -23,8 +23,11 @@ let () =
   let lexbuf = Lexing.from_channel input_channel in
   
   try
-    let result = Interpreter.eval_expr (Parser.program Lexer.token lexbuf) in
-    Printf.printf "Parsed result: %s\n" (match result with | Int x -> string_of_int x | Bool x -> string_of_bool x | _ -> "balls")
+    (*let result = Interpreter.eval_expr (Parser.program Lexer.token lexbuf) in
+    Printf.printf "Parsed result: %s\n" (match result with | Int x -> string_of_int x | Bool x -> string_of_bool x | _ -> "balls")*)
+    let f elem =
+      Interpreter.eval_statement (elem)
+    in List.iter f (Parser.program Lexer.token lexbuf)
     
   with
   | Parser.Error ->

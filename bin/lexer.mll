@@ -4,12 +4,13 @@
 
 let blank = [' ' '\t' '\n' '\r']
 let digit = ['0'-'9']
+let ident = ['A'-'Z' 'a'-'z' '_' '-']['A'-'Z' 'a'-'z' '_' '-' '0'-'9']+
 
 rule token = parse
 | blank+   { token lexbuf }
 | digit+   { INT_LIT (int_of_string(Lexing.lexeme lexbuf)) }
 
-| '='      {}
+| '='      { ASSIGN_EQUALS }
 
 | '+'      { PLUS }
 | '-'      { MINUS }
@@ -33,4 +34,6 @@ rule token = parse
 | ';'      { ENDLINE }
 | eof      { EOF }
 | ";;"     { EOF }
+| "print"  { PRINT }
+| ident    { IDENT (Lexing.lexeme lexbuf) }
 | _        { failwith (Printf.sprintf "unexpected character: %s" (Lexing.lexeme lexbuf)) }
