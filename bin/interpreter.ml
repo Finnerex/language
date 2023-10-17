@@ -52,13 +52,17 @@ let rec eval_expr (e:expr) =
     | Bool false -> eval_expr e2
     | _ -> raise TypeMismatch)
 
-  
+  | Var(i) -> Hashtbl.find identifierMap i
   
   | _ -> raise Unimplemented
 
 let rec eval_statement (state:expr PrgmSt.t) (sm:statement) = 
   match sm with
-  | Assign(_, _) -> raise Unimplemented
+
+  | Assign(v, e) -> 
+    (match v with 
+    | Var i -> Hashtbl.add identifierMap i e
+    | _ -> raise TypeMismatch)
   | Print(e) -> 
     Printf.printf "%s" (match eval_expr e with
      | Int x -> string_of_int x

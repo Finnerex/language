@@ -55,16 +55,22 @@ program:
 ;
 
 statement:
-(*| ident ASSIGN_EQUALS expression
-  { Assign ($1, $3) }*)
+| var ASSIGN_EQUALS expression
+  { Assign ($1, $3) }
+  
 | PRINT expression ENDLINE
   { Print $2 }
+  
 | PRINTLN expression ENDLINE
   { PrintLn $2 }
 
-(*ident:
+ident:
 | IDENT
-  { Ident $1 }*)
+  { Ident $1 }
+
+var:
+| ident
+  { Var $1 }
 
 expression:
 (* litterals *)
