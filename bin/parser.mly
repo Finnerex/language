@@ -10,7 +10,7 @@
 %token <char> CHAR_LIT
 %token <float> FLOAT_LIT *)
 
-%token TYPE
+(*%token TYPE*)
 
 %token ASSIGN_EQUALS
 
@@ -49,19 +49,19 @@
 %%
 
 program:
-| separated_list(ENDLINE, statement) EOF
+| list(statement) EOF
   { $1 }
 ;
 
 statement:
-| ident ASSIGN_EQUALS expression
-  { Assign ($1, $3) }
-| PRINT expression
+(*| ident ASSIGN_EQUALS expression
+  { Assign ($1, $3) }*)
+| PRINT expression ENDLINE
   { PrintStm $2 }
 
-ident:
+(*ident:
 | IDENT
-  { Ident $1 }
+  { Ident $1 }*)
 
 expression:
 (* litterals *)
