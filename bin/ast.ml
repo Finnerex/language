@@ -27,5 +27,5 @@ type expr =
 
 (* Statements *)
 type statement =
-| Assign of ident * expr
+| Assign of expr * expr
 | PrintStm of expr

@@ -3,6 +3,8 @@ open Ast
 exception TypeMismatch
 exception Unimplemented
 
+let identifierMap:((ident, expr) Hashtbl.t) = Hashtbl.create 9 (* we can have almost 1 million identifiers in a prgm *)
+
 let rec eval_expr (e:expr) =
   match e with
   | Int x -> Int x
@@ -50,13 +52,17 @@ let rec eval_expr (e:expr) =
     | Bool false -> eval_expr e2
     | _ -> raise TypeMismatch)
 
-  
+  | Var(i) -> Hashtbl.find identifierMap i
   
   | _ -> raise Unimplemented
 
 let eval_statement (sm:statement) = 
   match sm with
-  | Assign(_, _) -> raise Unimplemented
+  | Assign(v, e) -> 
+    (match v with 
+    | Var i -> Hashtbl.add identifierMap i e
+    | _ -> raise TypeMismatch)
+
   | PrintStm(e) -> 
     Printf.printf "%s" (match eval_expr e with
      | Int x -> string_of_int x
