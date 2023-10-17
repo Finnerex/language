@@ -5,11 +5,14 @@
 (* Litterals *)
 %token <int> INT_LIT
 %token <bool> BOOL_LIT
+%token <string> IDENT
 (* %token <string> STRING_LIT
 %token <char> CHAR_LIT
 %token <float> FLOAT_LIT *)
 
 %token TYPE
+
+%token ASSIGN_EQUALS
 
 %token LPAREN RPAREN
 (* %token LSCOPE RSCOPE *)
@@ -23,11 +26,14 @@
 
 %token TERNARY_QUESTIONMARK TERNARY_COLON
 
+%token PRINT
+
 %token ENDLINE
 %token EOF
 %token SEMICOLON
 
-(* precedents, lower first *)
+(* precedents, lower prec comes first *)
+%left TERNARY_QUESTIONMARK TERNARY_COLON
 %right OR 
 %right AND
 %left BOOL_EQUALS
@@ -38,7 +44,7 @@
 
 (* actual parsing *)
 
-%start program (* not sure what this means *)
+%start program
 %type <Ast.expr> program
 
 %%
