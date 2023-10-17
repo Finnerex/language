@@ -28,4 +28,5 @@ type expr =
 (* Statements *)
 type statement =
 | Assign of expr * expr
-| PrintStm of expr
+| Print of expr
+| PrintLn of expr

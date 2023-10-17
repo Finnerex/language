@@ -3,7 +3,7 @@ open Ast
 exception TypeMismatch
 exception Unimplemented
 
-let identifierMap:((ident, expr) Hashtbl.t) = Hashtbl.create 9 (* we can have almost 1 million identifiers in a prgm *)
+module PrgmSt = Map.Make(String);;
 
 let rec eval_expr (e:expr) =
   match e with
@@ -56,15 +56,25 @@ let rec eval_expr (e:expr) =
   
   | _ -> raise Unimplemented
 
-let eval_statement (sm:statement) = 
+let rec eval_statement (state:expr PrgmSt.t) (sm:statement) = 
   match sm with
+
   | Assign(v, e) -> 
     (match v with 
     | Var i -> Hashtbl.add identifierMap i e
     | _ -> raise TypeMismatch)
-
-  | PrintStm(e) -> 
+  | Print(e) -> 
     Printf.printf "%s" (match eval_expr e with
      | Int x -> string_of_int x
      | Bool x -> string_of_bool x
-     | _ -> "somethin else")
+     | _ -> "somethin else");
+     state
+  | PrintLn(e) ->
+    let state = eval_statement state (Print e) in
+    Printf.printf "\n";
+    state
+
+let rec eval_statements (sml:statement list) (state:expr PrgmSt.t) =
+  match sml with
+  | [] -> ()
+  | sm :: l -> eval_statement state sm |> eval_statements l
