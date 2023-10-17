@@ -62,7 +62,7 @@ let rec eval_statement (state:expr PrgmSt.t) (sm:statement) =
 
   | Assign(v, e) -> 
     (match v with 
-    | Var i -> Hashtbl.add identifierMap i (eval_expr e); state
+    | Var Ident i -> PrgmSt.add i (eval_expr e) state
     | _ -> raise TypeMismatch)
 
   | Print(e) -> 
