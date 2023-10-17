@@ -3,6 +3,8 @@ open Ast
 exception TypeMismatch
 exception Unimplemented
 
+module PrgmSt = Map.Make(String);;
+
 let rec eval_expr (e:expr) =
   match e with
   | Int x -> Int x
@@ -54,14 +56,21 @@ let rec eval_expr (e:expr) =
   
   | _ -> raise Unimplemented
 
-let rec eval_statement (sm:statement) = 
+let rec eval_statement (state:expr PrgmSt.t) (sm:statement) = 
   match sm with
   | Assign(_, _) -> raise Unimplemented
   | Print(e) -> 
     Printf.printf "%s" (match eval_expr e with
      | Int x -> string_of_int x
      | Bool x -> string_of_bool x
-     | _ -> "somethin else")
+     | _ -> "somethin else");
+     state
   | PrintLn(e) ->
-    eval_statement (Print e);
-    Printf.printf "\n"
+    let state = eval_statement state (Print e) in
+    Printf.printf "\n";
+    state
+
+let rec eval_statements (sml:statement list) (state:expr PrgmSt.t) =
+  match sml with
+  | [] -> ()
+  | sm :: l -> eval_statement state sm |> eval_statements l

@@ -25,9 +25,10 @@ let () =
   try
     (*let result = Interpreter.eval_expr (Parser.program Lexer.token lexbuf) in
     Printf.printf "Parsed result: %s\n" (match result with | Int x -> string_of_int x | Bool x -> string_of_bool x | _ -> "balls")*)
-    let f elem =
+    (*let f elem =
       Interpreter.eval_statement (elem)
-    in List.iter f (Parser.program Lexer.token lexbuf)
+    in List.iter f (Parser.program Lexer.token lexbuf)*)
+    Interpreter.eval_statements (Parser.program Lexer.token lexbuf) Interpreter.PrgmSt.empty
     
   with
   | Parser.Error ->
