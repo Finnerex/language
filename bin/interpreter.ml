@@ -54,11 +54,14 @@ let rec eval_expr (e:expr) =
   
   | _ -> raise Unimplemented
 
-let eval_statement (sm:statement) = 
+let rec eval_statement (sm:statement) = 
   match sm with
   | Assign(_, _) -> raise Unimplemented
-  | PrintStm(e) -> 
+  | Print(e) -> 
     Printf.printf "%s" (match eval_expr e with
      | Int x -> string_of_int x
      | Bool x -> string_of_bool x
      | _ -> "somethin else")
+  | PrintLn(e) ->
+    eval_statement (Print e);
+    Printf.printf "\n"

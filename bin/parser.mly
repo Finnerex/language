@@ -27,6 +27,7 @@
 %token TERNARY_QUESTIONMARK TERNARY_COLON
 
 %token PRINT
+%token PRINTLN
 
 %token ENDLINE
 %token EOF
@@ -57,7 +58,9 @@ statement:
 (*| ident ASSIGN_EQUALS expression
   { Assign ($1, $3) }*)
 | PRINT expression ENDLINE
-  { PrintStm $2 }
+  { Print $2 }
+| PRINTLN expression ENDLINE
+  { PrintLn $2 }
 
 (*ident:
 | IDENT

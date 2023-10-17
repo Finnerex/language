@@ -34,6 +34,7 @@ rule token = parse
 | ';'      { ENDLINE }
 | eof      { EOF }
 | ";;"     { EOF }
-| "print"  { PRINT }
-| ident    { IDENT (Lexing.lexeme lexbuf) }
-| _        { failwith (Printf.sprintf "unexpected character: %s" (Lexing.lexeme lexbuf)) }
+| "println"  { PRINTLN }
+| "print"    { PRINT }
+| ident      { IDENT (Lexing.lexeme lexbuf) }
+| _          { failwith (Printf.sprintf "unexpected character: %s" (Lexing.lexeme lexbuf)) }
