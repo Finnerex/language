@@ -25,6 +25,7 @@
 
 %token ENDLINE
 %token EOF
+%token SEMICOLON
 
 (* precedents, lower first *)
 %right OR 
@@ -43,18 +44,14 @@
 %%
 
 program:
-| expression EOF (* this will have to be parsed as a list of statements/lines somehow at some point *)
+| seperated_list(statement, SEMICOLON) EOF
   { $1 }
 ;
 
-(* statement:
-| expression ENDLINE
-  { $1 }
-| statement ENDLINE
-  { $1 } *)
+statement:
+| 
 
 expression:
-
 (* litterals *)
 | INT_LIT
   { Int $1 }
