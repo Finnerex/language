@@ -33,6 +33,7 @@
 %token EOF
 
 (* precedents, lower prec comes first *)
+%right ASSIGN_EQUALS
 %left TERNARY_QUESTIONMARK TERNARY_COLON
 %right OR 
 %right AND
@@ -50,37 +51,50 @@
 %%
 
 program:
-| list(statement) EOF
+| list(s = statement ENDLINE { s }) EOF
   { $1 }
 ;
+
+// line: 
+//   statement ENDLINE
+//   { $1 }
+// ;
 
 statement:
 | var ASSIGN_EQUALS expression
   { Assign ($1, $3) }
   
-| PRINT expression ENDLINE
+| PRINT expression
   { Print $2 }
   
-| PRINTLN expression ENDLINE
+| PRINTLN expression
   { PrintLn $2 }
+;
+
 
 ident:
 | IDENT
   { Ident $1 }
+;
 
 var:
 | ident
   { Var $1 }
+;
 
 expression:
 (* litterals *)
 | INT_LIT
   { Int $1 }
+
 | MINUS INT_LIT
   { Int (-$2) }
 
 | BOOL_LIT
   { Bool $1 }
+
+| ident
+  { Var $1 }
 
 (* mathematical expressions *)
 | expression PLUS expression (* { $1 + $3 } *)

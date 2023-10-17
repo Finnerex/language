@@ -4,6 +4,7 @@ exception TypeMismatch
 exception Unimplemented
 
 module PrgmSt = Map.Make(String);;
+let identifierMap:((ident, expr) Hashtbl.t) = Hashtbl.create 9
 
 let rec eval_expr (e:expr) =
   match e with
@@ -61,14 +62,16 @@ let rec eval_statement (state:expr PrgmSt.t) (sm:statement) =
 
   | Assign(v, e) -> 
     (match v with 
-    | Var i -> Hashtbl.add identifierMap i e
+    | Var i -> Hashtbl.add identifierMap i (eval_expr e); state
     | _ -> raise TypeMismatch)
+
   | Print(e) -> 
     Printf.printf "%s" (match eval_expr e with
      | Int x -> string_of_int x
      | Bool x -> string_of_bool x
      | _ -> "somethin else");
      state
+
   | PrintLn(e) ->
     let state = eval_statement state (Print e) in
     Printf.printf "\n";

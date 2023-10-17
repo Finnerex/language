@@ -1,8 +1,10 @@
+ab9 = 1;
+println ab9;
+ab9 = ab9 + 1;
+println ab9;
 
-a = 1;
-print (a)
-println 0 == 1 ? 5 : 2;
-println true;
-println false;
-println 0 == 2;
-println 5;
+a = 8;
+println a;
+
+_a = 9;
+println _a;
