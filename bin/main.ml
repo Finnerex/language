@@ -1,6 +1,6 @@
 open Lexing
 
-let () = print_endline "mehhhh"
+let () = Printf.printf "Intepreting %s:\n" Sys.argv.(1)
 
 (*type token =
 | Symbol of string
