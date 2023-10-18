@@ -1,11 +1,8 @@
 println "hello lmao";
-ab9 = 1;
-println ab9;
-ab9 = ab9 + 1;
-println ab9;
-
 a = 8;
 println a;
+a = 5;
+println a;
 
-_a = 9;
-println _a;
+bruhbruh = "yuer";
+println bruhbruh;

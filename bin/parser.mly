@@ -62,7 +62,7 @@ program:
 // ;
 
 statement:
-| var ASSIGN_EQUALS expression
+| ident ASSIGN_EQUALS expression
   { Assign ($1, $3) }
   
 | PRINT expression
@@ -76,11 +76,6 @@ statement:
 ident:
 | IDENT
   { Ident $1 }
-;
-
-var:
-| ident
-  { Var $1 }
 ;
 
 expression:

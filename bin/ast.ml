@@ -1,7 +1,15 @@
 (* ass syntax tree *)
 
 (* Identifier *)
-type ident = Ident of string
+module Ident =
+  struct
+    type t =
+    | Ident of string
+    let compare x y = 
+      match (x, y) with
+      | Ident str1, Ident str2 ->
+        compare str1 str2
+  end
 
 (* Expressions *)
 type expr =
@@ -10,7 +18,7 @@ type expr =
 | Bool of bool
 | EString of string
 
-| Var of ident
+| Var of Ident.t
 
 (* boolean expressions *)
 | And of expr * expr
@@ -28,6 +36,6 @@ type expr =
 
 (* Statements *)
 type statement =
-| Assign of expr * expr
+| Assign of Ident.t * expr
 | Print of expr
 | PrintLn of expr
