@@ -5,7 +5,7 @@
 
 let blank = [' ' '\t' '\n' '\r']
 let digit = ['0'-'9']
-let ident = '_'* + ['A'-'Z' 'a'-'z'] + ['A'-'Z' 'a'-'z' '_' '0'-'9']*
+let ident = '_'* ['A'-'Z' 'a'-'z'] ['A'-'Z' 'a'-'z' '_' '0'-'9']*
 
 rule token = parse
 | blank+     { token lexbuf }
@@ -26,6 +26,8 @@ rule token = parse
 
 | "if"       { IF }
 | "else"     { ELSE }
+
+| "while"    { WHILE }
 
 | "true"     { BOOL_LIT true }
 | "false"    { BOOL_LIT false }

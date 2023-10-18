@@ -40,3 +40,4 @@ type statement =
 | If of (expr * statement list) list
 | Print of expr
 | PrintLn of expr
+| While of expr * statement list

@@ -27,6 +27,7 @@
 %token TERNARY_QUESTIONMARK TERNARY_COLON
 
 %token IF ELSE
+%token WHILE
 
 %token PRINT
 %token PRINTLN
@@ -70,6 +71,9 @@ statement:
 
 | IF LPAREN expression RPAREN LCURLY list(statement) RCURLY list(elseif)
   { If ([($3, $6)] @ $8) }
+
+| WHILE LPAREN expression RPAREN LCURLY list(statement) RCURLY
+  { While ($3, $6) }
 
 ;
 

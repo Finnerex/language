@@ -82,6 +82,15 @@ let rec eval_statement (state:expr PrgmSt.t) (sm:statement) =
       | Bool true -> flatten_list eval_statement sml state
       | Bool false -> eval_statement state (If xs)
       | _ -> raise TypeMismatch))
+  
+  | While(e, sml) ->
+    (match eval_expr state e with
+    | Bool true -> 
+      let new_state = flatten_list eval_statement sml state in 
+      eval_statement new_state sm
+
+    | Bool false -> state
+    | _ -> raise TypeMismatch)
 
   | Print(e) -> 
     Printf.printf "%s" (match eval_expr state e with
