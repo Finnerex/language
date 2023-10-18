@@ -1,3 +1,4 @@
+println "hello lmao";
 ab9 = 1;
 println ab9;
 ab9 = ab9 + 1;

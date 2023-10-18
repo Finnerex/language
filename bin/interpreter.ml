@@ -10,7 +10,7 @@ let rec eval_expr (e:expr) =
   match e with
   | Int x -> Int x
   | Bool x -> Bool x
-  
+  | EString x -> EString x
   | Plus(e1, e2) ->
     (match eval_expr e1, eval_expr e2 with
     | Int i1, Int i2 -> Int(i1 + i2)
@@ -69,6 +69,7 @@ let rec eval_statement (state:expr PrgmSt.t) (sm:statement) =
     Printf.printf "%s" (match eval_expr e with
      | Int x -> string_of_int x
      | Bool x -> string_of_bool x
+     | EString x -> x
      | _ -> "somethin else");
      state
 

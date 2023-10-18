@@ -8,6 +8,7 @@ type expr =
 (* basic types *)
 | Int of int
 | Bool of bool
+| EString of string
 
 | Var of ident
 

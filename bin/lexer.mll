@@ -1,5 +1,6 @@
 {
   open Parser
+  let string_buf = Buffer.create 256
 }
 
 let blank = [' ' '\t' '\n' '\r']
@@ -39,5 +40,14 @@ rule token = parse
 | ";;"       { EOF }
 
 | ident      { IDENT (Lexing.lexeme lexbuf) }
+| '"'        { Buffer.clear string_buf;
+               string lexbuf;
+               STRING_LIT (Buffer.contents string_buf) }
 
 | _          { failwith (Printf.sprintf "unexpected character: %s" (Lexing.lexeme lexbuf)) }
+
+and string = parse
+| '"' { () }
+| _ as c { Buffer.add_char string_buf c;
+           string lexbuf }
+(* add backslash escapes *)
