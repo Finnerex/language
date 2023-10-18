@@ -1,2 +1,11 @@
 println "hello lmao";
-println "yo" + 2;
+ab9 = 1;
+println ab9;
+ab9 = ab9 + 1;
+println ab9;
+
+a = 8;
+println a;
+
+_a = 9;
+println _a;
