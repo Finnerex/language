@@ -57,15 +57,6 @@ program:
   { $1 }
 ;
 
-elseif:
-| ELSE IF LPAREN expression RPAREN LSCOPE list(statement) RSCOPE elseif
-  { [($4, $7)] @ $9 }
-
-| ELSE LSCOPE list(statement) RSCOPE
-  { [((Bool true), $3)]}
-
-// | _ { [] } idk how to have empty but yeah
-;
 
 statement:
 | ident ASSIGN_EQUALS expression ENDLINE
@@ -77,11 +68,20 @@ statement:
 | PRINTLN expression ENDLINE
   { PrintLn $2 }
 
-| IF LPAREN expression RPAREN LSCOPE list(statement) RSCOPE elseif
+| IF LPAREN expression RPAREN LSCOPE list(statement) RSCOPE else
   { If ([($3, $6)] @ $8) }
 
-| IF LPAREN expression RPAREN LSCOPE list(statement) RSCOPE
+| IF LPAREN expression RPAREN LSCOPE list(statement) RSCOPE (* if there was a way to make the else optional that would be good *)
   { If [($3, $6)] }
+;
+
+
+else:
+| ELSE IF LPAREN expression RPAREN LSCOPE list(statement) RSCOPE else
+  { [($4, $7)] @ $9 }
+
+| ELSE LSCOPE list(statement) RSCOPE
+  { [((Bool true), $3)]}
 ;
 
 
@@ -89,6 +89,7 @@ ident:
 | IDENT
   { Ident $1 }
 ;
+
 
 expression:
 (* litterals *)
