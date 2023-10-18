@@ -15,7 +15,7 @@
 %token ASSIGN_EQUALS
 
 %token LPAREN RPAREN
-%token LSCOPE RSCOPE
+%token LCURLY RCURLY
 
 (* Arithmetic operators *)
 %token PLUS MINUS
@@ -68,17 +68,17 @@ statement:
 | PRINTLN expression ENDLINE
   { PrintLn $2 }
 
-| IF LPAREN expression RPAREN LSCOPE list(statement) RSCOPE list(elseif)
+| IF LPAREN expression RPAREN LCURLY list(statement) RCURLY list(elseif)
   { If ([($3, $6)] @ $8) }
 
 ;
 
 
 elseif:
-| ELSE IF LPAREN expression RPAREN LSCOPE list(statement) RSCOPE
+| ELSE IF LPAREN expression RPAREN LCURLY list(statement) RCURLY
   { ($4, $7) }
 
-| ELSE LSCOPE list(statement) RSCOPE
+| ELSE LCURLY list(statement) RCURLY
   { ((Bool true), $3) }
 ;
 

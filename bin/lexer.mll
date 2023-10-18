@@ -21,8 +21,8 @@ rule token = parse
 | '('        { LPAREN }
 | ')'        { RPAREN }
 
-| '{'        { LSCOPE }
-| '}'        { RSCOPE }
+| '{'        { LCURLY }
+| '}'        { RCURLY }
 
 | "if"       { IF }
 | "else"     { ELSE }
