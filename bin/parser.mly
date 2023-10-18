@@ -7,8 +7,7 @@
 %token <bool> BOOL_LIT
 %token <string> STRING_LIT
 %token <string> IDENT
-(* %token <string> STRING_LIT
-%token <char> CHAR_LIT
+(*%token <char> CHAR_LIT
 %token <float> FLOAT_LIT *)
 
 (*%token TYPE*)
