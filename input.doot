@@ -6,3 +6,8 @@ println a;
 
 bruhbruh = "yuer";
 println bruhbruh;
+
+sure = false;
+if (sure) {
+    println "yeh";
+}

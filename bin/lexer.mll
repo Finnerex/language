@@ -21,6 +21,11 @@ rule token = parse
 | '('        { LPAREN }
 | ')'        { RPAREN }
 
+| '{'        { LSCOPE }
+| '}'        { RSCOPE }
+
+| "if"       { IF }
+
 | "true"     { BOOL_LIT true }
 | "false"    { BOOL_LIT false }
 

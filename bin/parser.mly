@@ -15,7 +15,7 @@
 %token ASSIGN_EQUALS
 
 %token LPAREN RPAREN
-(* %token LSCOPE RSCOPE *)
+%token LSCOPE RSCOPE
 
 (* Arithmetic operators *)
 %token PLUS MINUS
@@ -25,6 +25,8 @@
 %token AND OR NOT BOOL_EQUALS
 
 %token TERNARY_QUESTIONMARK TERNARY_COLON
+
+%token IF
 
 %token PRINT
 %token PRINTLN
@@ -51,24 +53,22 @@
 %%
 
 program:
-| list(s = statement ENDLINE { s }) EOF
+| list(statement) EOF
   { $1 }
 ;
 
-// line: 
-//   statement ENDLINE
-//   { $1 }
-// ;
-
 statement:
-| ident ASSIGN_EQUALS expression
+| ident ASSIGN_EQUALS expression ENDLINE
   { Assign ($1, $3) }
   
-| PRINT expression
+| PRINT expression ENDLINE
   { Print $2 }
   
-| PRINTLN expression
+| PRINTLN expression ENDLINE
   { PrintLn $2 }
+
+| IF LPAREN expression RPAREN LSCOPE list(statement) RSCOPE
+  { If [($3, $6)] }
 ;
 
 
