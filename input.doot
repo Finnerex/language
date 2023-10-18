@@ -31,9 +31,21 @@ if (sure) {
 println 10;
 
 i = 0;
-_a15 = 10;
 
 while (!(i == 10)) {
-    println i;
     i = i + 1;
+    _a15 = 10;
+    while (!(_a15 == 0)) {
+        print i;
+        print " ";
+        println _a15;
+        _a15 = _a15 - 1;
+    }
 }
+
+for (i = 0; !(i == 7); i = i + 1;) {
+    print "printing: ";
+    println i;
+}
+
+println "all done";

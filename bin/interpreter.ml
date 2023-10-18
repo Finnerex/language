@@ -92,6 +92,10 @@ let rec eval_statement (state:expr PrgmSt.t) (sm:statement) =
     | Bool false -> state
     | _ -> raise TypeMismatch)
 
+  | For(is, e, ls, sml) ->
+    let new_state = eval_statement state is in
+    eval_statement new_state (While(e, sml @ [ls]))
+
   | Print(e) -> 
     Printf.printf "%s" (match eval_expr state e with
      | Int x -> string_of_int x

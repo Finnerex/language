@@ -27,7 +27,7 @@
 %token TERNARY_QUESTIONMARK TERNARY_COLON
 
 %token IF ELSE
-%token WHILE
+%token WHILE FOR
 
 %token PRINT
 %token PRINTLN
@@ -74,6 +74,10 @@ statement:
 
 | WHILE LPAREN expression RPAREN LCURLY list(statement) RCURLY
   { While ($3, $6) }
+
+| FOR LPAREN statement expression ENDLINE statement RPAREN LCURLY list(statement) RCURLY
+  { For ($3, $4, $6, $9) }
+
 
 ;
 

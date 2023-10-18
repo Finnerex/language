@@ -38,6 +38,7 @@ type expr =
 type statement =
 | Assign of Ident.t * expr
 | If of (expr * statement list) list
+| While of expr * statement list
+| For of statement * expr * statement * statement list
 | Print of expr
 | PrintLn of expr
-| While of expr * statement list

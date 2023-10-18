@@ -28,6 +28,7 @@ rule token = parse
 | "else"     { ELSE }
 
 | "while"    { WHILE }
+| "for"      { FOR }
 
 | "true"     { BOOL_LIT true }
 | "false"    { BOOL_LIT false }
