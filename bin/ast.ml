@@ -37,5 +37,6 @@ type expr =
 (* Statements *)
 type statement =
 | Assign of Ident.t * expr
+| If of (expr * statement list) list
 | Print of expr
 | PrintLn of expr

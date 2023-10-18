@@ -3,6 +3,8 @@ open Ast
 exception TypeMismatch
 exception Unimplemented
 
+[@@@ocaml.warning "-27"]
+
 module PrgmSt = Map.Make(Ident);;
 
 let rec eval_expr (state:expr PrgmSt.t) (e:expr) =
@@ -62,6 +64,15 @@ let rec eval_statement (state:expr PrgmSt.t) (sm:statement) =
   | Assign(v, e) -> 
     PrgmSt.add v (eval_expr state e) state
 
+  | If(l) ->
+    (match l with
+    | [] -> state
+    | (b, sml) :: xs ->
+      (match eval_expr state b with
+      | Bool true -> (* eval_statements sml *) state
+      | Bool false -> eval_statement state (If xs)
+      | _ -> raise TypeMismatch))
+
   | Print(e) -> 
     Printf.printf "%s" (match eval_expr state e with
      | Int x -> string_of_int x
@@ -74,6 +85,8 @@ let rec eval_statement (state:expr PrgmSt.t) (sm:statement) =
     let state = eval_statement state (Print e) in
     Printf.printf "\n";
     state
+  
+  (* | _ -> raise Unimplemented *)
 
 let rec eval_statements (sml:statement list) (state:expr PrgmSt.t) =
   match sml with
