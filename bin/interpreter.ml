@@ -58,6 +58,11 @@ let rec eval_expr (state:expr PrgmSt.t) (e:expr) =
   
   | _ -> raise Unimplemented
 
+let rec flatten_list (accum:'b -> 'a -> 'b) (l:'a list) (i:'b) =
+  match l with
+  | [] -> i
+  | sm :: l2 -> accum i sm |> flatten_list accum l2
+
 let rec eval_statement (state:expr PrgmSt.t) (sm:statement) = 
   match sm with
 
@@ -69,7 +74,7 @@ let rec eval_statement (state:expr PrgmSt.t) (sm:statement) =
     | [] -> state
     | (b, sml) :: xs ->
       (match eval_expr state b with
-      | Bool true -> (* eval_statements sml *) state
+      | Bool true -> flatten_list eval_statement sml state
       | Bool false -> eval_statement state (If xs)
       | _ -> raise TypeMismatch))
 
@@ -88,7 +93,5 @@ let rec eval_statement (state:expr PrgmSt.t) (sm:statement) =
   
   (* | _ -> raise Unimplemented *)
 
-let rec eval_statements (sml:statement list) (state:expr PrgmSt.t) =
-  match sml with
-  | [] -> ()
-  | sm :: l -> eval_statement state sm |> eval_statements l
+let eval_statements (sml:statement list) (state:expr PrgmSt.t) =
+  flatten_list eval_statement sml state

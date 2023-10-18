@@ -28,8 +28,8 @@ let () =
     (*let f elem =
       Interpreter.eval_statement (elem)
     in List.iter f (Parser.program Lexer.token lexbuf)*)
-    Interpreter.eval_statements (Parser.program Lexer.token lexbuf) Interpreter.PrgmSt.empty
-    
+    let _ = Interpreter.eval_statements (Parser.program Lexer.token lexbuf) Interpreter.PrgmSt.empty in ()
+
   with
   | Parser.Error ->
     let pos = lexbuf.lex_curr_p in

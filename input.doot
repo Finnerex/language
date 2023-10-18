@@ -11,3 +11,5 @@ sure = false;
 if (sure) {
     println "yeh";
 }
+
+println 10;
