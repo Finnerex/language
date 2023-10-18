@@ -1,5 +1,2 @@
-println 0 == 1 ? 5 : 2;
-println true;
-println false;
-println 0 == 2;
-println 5;
+println "hello lmao";
+println "yo" + 2;

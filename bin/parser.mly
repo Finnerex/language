@@ -5,6 +5,7 @@
 (* Litterals *)
 %token <int> INT_LIT
 %token <bool> BOOL_LIT
+%token <string> STRING_LIT
 %token <string> IDENT
 (* %token <string> STRING_LIT
 %token <char> CHAR_LIT
@@ -75,6 +76,9 @@ expression:
 
 | BOOL_LIT
   { Bool $1 }
+
+| STRING_LIT
+  { EString $1 }
 
 (* mathematical expressions *)
 | expression PLUS expression (* { $1 + $3 } *)
