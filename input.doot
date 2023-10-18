@@ -7,9 +7,19 @@ println a;
 bruhbruh = "yuer";
 println bruhbruh;
 
-sure = false;
+sure = true;
+maybe = false;
+
+if (sure) {
+    println "yeah";
+}
+
 if (sure) {
     println "yeh";
+} else if (maybe) {
+    println "maybe";
+} else {
+    println "nah";
 }
 
 println 10;

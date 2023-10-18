@@ -26,7 +26,7 @@
 
 %token TERNARY_QUESTIONMARK TERNARY_COLON
 
-%token IF
+%token IF ELSE
 
 %token PRINT
 %token PRINTLN
@@ -57,6 +57,16 @@ program:
   { $1 }
 ;
 
+elseif:
+| ELSE IF LPAREN expression RPAREN LSCOPE list(statement) RSCOPE elseif
+  { [($4, $7)] @ $9 }
+
+| ELSE LSCOPE list(statement) RSCOPE
+  { [((Bool true), $3)]}
+
+// | _ { [] } idk how to have empty but yeah
+;
+
 statement:
 | ident ASSIGN_EQUALS expression ENDLINE
   { Assign ($1, $3) }
@@ -66,6 +76,9 @@ statement:
   
 | PRINTLN expression ENDLINE
   { PrintLn $2 }
+
+| IF LPAREN expression RPAREN LSCOPE list(statement) RSCOPE elseif
+  { If ([($3, $6)] @ $8) }
 
 | IF LPAREN expression RPAREN LSCOPE list(statement) RSCOPE
   { If [($3, $6)] }
@@ -87,8 +100,10 @@ expression:
 
 | BOOL_LIT
   { Bool $1 }
+
 | STRING_LIT
   { EString $1 }
+
 | ident
   { Var $1 }
 

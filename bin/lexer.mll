@@ -25,6 +25,7 @@ rule token = parse
 | '}'        { RSCOPE }
 
 | "if"       { IF }
+| "else"     { ELSE }
 
 | "true"     { BOOL_LIT true }
 | "false"    { BOOL_LIT false }
