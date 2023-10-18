@@ -60,25 +60,29 @@ program:
 
 
 statement:
-| ident ASSIGN_EQUALS expression ENDLINE
-  { Assign ($1, $3) }
+| incomplete_statement ENDLINE
+  { $1 }
   
-| PRINT expression ENDLINE
-  { Print $2 }
-  
-| PRINTLN expression ENDLINE
-  { PrintLn $2 }
-
 | IF LPAREN expression RPAREN LCURLY list(statement) RCURLY list(elseif)
-  { If ([($3, $6)] @ $8) }
+  { If (($3, $6) :: $8) }
 
 | WHILE LPAREN expression RPAREN LCURLY list(statement) RCURLY
   { While ($3, $6) }
 
-| FOR LPAREN statement expression ENDLINE statement RPAREN LCURLY list(statement) RCURLY
-  { For ($3, $4, $6, $9) }
+| FOR LPAREN incomplete_statement ENDLINE expression ENDLINE incomplete_statement RPAREN LCURLY list(statement) RCURLY
+  { For ($3, $5, $7, $10) }
 
+;
 
+incomplete_statement:
+| ident ASSIGN_EQUALS expression
+  { Assign ($1, $3) }
+
+| PRINT expression
+  { Print $2 } 
+
+| PRINTLN expression
+  { PrintLn $2 }
 ;
 
 

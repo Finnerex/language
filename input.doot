@@ -32,9 +32,9 @@ println 10;
 
 i = 0;
 
-while (!(i == 10)) {
+while (!(i == 5)) {
     i = i + 1;
-    _a15 = 10;
+    _a15 = 3;
     while (!(_a15 == 0)) {
         print i;
         print " ";
@@ -43,7 +43,7 @@ while (!(i == 10)) {
     }
 }
 
-for (i = 0; !(i == 7); i = i + 1;) {
+for (i = 0; !(i == 7); i = i + 1) {
     print "printing: ";
     println i;
 }
