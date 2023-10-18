@@ -8,10 +8,16 @@ bruhbruh = "yuer";
 println bruhbruh;
 
 sure = true;
-maybe = false;
+maybe = true;
 
 if (sure) {
     println "yeah";
+}
+
+if (!sure) {
+    println "yep";
+} else if (maybe) {
+    println "mayhaps";
 }
 
 if (sure) {

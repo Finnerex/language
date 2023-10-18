@@ -68,20 +68,18 @@ statement:
 | PRINTLN expression ENDLINE
   { PrintLn $2 }
 
-| IF LPAREN expression RPAREN LSCOPE list(statement) RSCOPE else
+| IF LPAREN expression RPAREN LSCOPE list(statement) RSCOPE list(elseif)
   { If ([($3, $6)] @ $8) }
 
-| IF LPAREN expression RPAREN LSCOPE list(statement) RSCOPE (* if there was a way to make the else optional that would be good *)
-  { If [($3, $6)] }
 ;
 
 
-else:
-| ELSE IF LPAREN expression RPAREN LSCOPE list(statement) RSCOPE else
-  { [($4, $7)] @ $9 }
+elseif:
+| ELSE IF LPAREN expression RPAREN LSCOPE list(statement) RSCOPE
+  { ($4, $7) }
 
 | ELSE LSCOPE list(statement) RSCOPE
-  { [((Bool true), $3)]}
+  { ((Bool true), $3) }
 ;
 
 

@@ -32,6 +32,11 @@ let rec eval_expr (state:expr PrgmSt.t) (e:expr) =
     | Int i1, Int i2 -> Int(i1 / i2)
     | _ -> raise TypeMismatch)
 
+  | Not(x) ->
+    (match eval_expr state x with
+    | Bool b -> Bool (not b)
+    | _ -> raise TypeMismatch)
+
   | And(e1, e2) ->
     (match eval_expr state e1, eval_expr state e2 with
     | Bool b1, Bool b2 -> Bool(b1 && b2)
@@ -56,7 +61,7 @@ let rec eval_expr (state:expr PrgmSt.t) (e:expr) =
 
   | Var(i) -> PrgmSt.find i state
   
-  | _ -> raise Unimplemented
+  (* | _ -> raise Unimplemented *)
 
 let rec flatten_list (accum:'b -> 'a -> 'b) (l:'a list) (i:'b) =
   match l with
