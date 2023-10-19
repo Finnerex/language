@@ -19,7 +19,7 @@ if (!sure) {
 } else if (maybe) 
     println "mayhaps";
 
-
+// balls
 if (!sure) 
     println "yeh";
 else if (!maybe) {
@@ -48,4 +48,10 @@ for (i = 0; !(i == 7); i = i + 1) {
     println i;
 }
 
-println "all done";
+// one lines
+
+/*
+    multiple lines
+*/
+
+/*cobment*/println "all done";

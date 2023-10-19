@@ -11,6 +11,9 @@ rule token = parse
 | blank+     { token lexbuf }
 | digit+     { INT_LIT (int_of_string(Lexing.lexeme lexbuf)) }
 
+| "//"       { line_comment lexbuf |> token }
+| "/*"       { block_comment lexbuf |> token }
+
 | '='        { ASSIGN_EQUALS }
 
 | '+'        { PLUS }
@@ -64,3 +67,11 @@ and string = parse
 | _ as c { Buffer.add_char string_buf c;
            string lexbuf }
 (* add backslash escapes *)
+
+and line_comment = parse (* wanted to do both comment types using an arg but it wasnt working so idk *)
+| '\n'  { lexbuf }
+| _     { line_comment lexbuf }
+
+and block_comment = parse
+| "*/"  { lexbuf }
+| _     { block_comment lexbuf }
