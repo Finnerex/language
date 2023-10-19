@@ -68,6 +68,9 @@ statement:
 | IF LPAREN expression RPAREN LCURLY list(statement) RCURLY list(elseif)
   { If (($3, $6) :: $8) }
 
+| IF LPAREN expression RPAREN incomplete_statement ENDLINE list(elseif) (* can only have one one-line statement *)
+  { If (($3, [$5]) :: $7) }
+
 | WHILE LPAREN expression RPAREN LCURLY list(statement) RCURLY
   { While ($3, $6) }
 
@@ -76,7 +79,7 @@ statement:
 
 ;
 
-incomplete_statement:
+incomplete_statement: (* basically any one line statement *)
 | ident ASSIGN_EQUALS expression
   { Assign ($1, $3) }
 
@@ -94,6 +97,13 @@ elseif:
 
 | ELSE LCURLY list(statement) RCURLY
   { ((Bool true), $3) }
+
+(* one liner else ifs*)
+| ELSE IF LPAREN expression RPAREN incomplete_statement ENDLINE
+  { ($4, [$6]) }
+
+| ELSE incomplete_statement ENDLINE
+  { ((Bool true), [$2]) }
 ;
 
 

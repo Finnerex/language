@@ -16,17 +16,17 @@ if (sure) {
 
 if (!sure) {
     println "yep";
-} else if (maybe) {
+} else if (maybe) 
     println "mayhaps";
-}
 
-if (sure) {
+
+if (!sure) 
     println "yeh";
-} else if (maybe) {
+else if (!maybe) {
     println "maybe";
-} else {
+} else
     println "nah";
-}
+
 
 println 10;
 
@@ -43,7 +43,7 @@ while (!(i == 5)) {
     }
 }
 
-for (i = 0; i <= 7; i = i + 1) {
+for (i = 0; !(i == 7); i = i + 1) {
     print "printing: ";
     println i;
 }
