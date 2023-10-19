@@ -37,6 +37,10 @@ rule token = parse
 | "&&"       { AND }
 | "||"       { OR }
 | '!'        { NOT }
+| "<="       { LESS_EQ }
+| '<'        { LESS }
+| ">="       { GREATER_EQ }
+| '>'        { GREATER }
 
 | '?'        { TERNARY_QUESTIONMARK }
 | ':'        { TERNARY_COLON }

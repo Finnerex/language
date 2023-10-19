@@ -23,6 +23,8 @@
 
 (* Boolean opperators *)
 %token AND OR NOT BOOL_EQUALS
+%token GREATER LESS
+%token GREATER_EQ LESS_EQ
 
 %token TERNARY_QUESTIONMARK TERNARY_COLON
 
@@ -130,6 +132,18 @@ expression:
 
 | expression DIV expression (* { $1 / $3 } *)
   { Div($1, $3) }
+
+| expression LESS_EQ expression
+  { LessEq($1, $3) }
+
+| expression GREATER_EQ expression
+  { GreaterEq($1, $3) }
+
+| expression LESS expression
+  { Less($1, $3) }
+
+| expression GREATER expression
+  { Greater($1, $3) }
 
 (* boolean expressions *)
 | expression AND expression

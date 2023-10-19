@@ -31,6 +31,26 @@ let rec eval_expr (state:expr PrgmSt.t) (e:expr) =
     (match eval_expr state e1, eval_expr state e2 with
     | Int i1, Int i2 -> Int(i1 / i2)
     | _ -> raise TypeMismatch)
+  
+  | Less(e1, e2) ->
+    (match eval_expr state e1, eval_expr state e2 with
+    | Int i1, Int i2 -> Bool(i1 < i2)
+    | _ -> raise TypeMismatch)
+  
+  | LessEq(e1, e2) ->
+    (match eval_expr state e1, eval_expr state e2 with
+    | Int i1, Int i2 -> Bool(i1 <= i2)
+    | _ -> raise TypeMismatch)
+  
+  | Greater(e1, e2) ->
+    (match eval_expr state e1, eval_expr state e2 with
+    | Int i1, Int i2 -> Bool(i1 > i2)
+    | _ -> raise TypeMismatch)
+  
+  | GreaterEq(e1, e2) ->
+    (match eval_expr state e1, eval_expr state e2 with
+    | Int i1, Int i2 -> Bool(i1 >= i2)
+    | _ -> raise TypeMismatch)
 
   | Not(x) ->
     (match eval_expr state x with

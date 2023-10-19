@@ -26,6 +26,11 @@ type expr =
 | Equals of expr * expr
 | Not of expr
 
+| Greater of expr * expr
+| GreaterEq of expr * expr
+| Less of expr * expr
+| LessEq of expr * expr
+
 (* mathematical expressions *)
 | Plus of expr * expr
 | Minus of expr * expr
