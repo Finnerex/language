@@ -43,7 +43,7 @@ while (!(i == 5)) {
     }
 }
 
-for (i = 0; !(i == 7); i = i + 1) {
+for (i = 0; i <= 7; i = i + 1) {
     print "printing: ";
     println i;
 }
