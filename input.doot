@@ -48,6 +48,16 @@ for (i = 0; i <= 7; i = i + 1) {
     println i;
 }
 
+bruh(var1, foo) {
+    println "lmao";
+    println var1;
+    println foo;
+}
+
+foo = 9 + 10;
+
+bruh("what's up dawg", foo)
+
 // one lines
 
 /*

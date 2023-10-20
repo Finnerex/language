@@ -14,6 +14,8 @@
 
 %token ASSIGN_EQUALS
 
+%token COMMA
+
 %token LPAREN RPAREN
 %token LCURLY RCURLY
 
@@ -77,11 +79,17 @@ statement:
 | FOR LPAREN incomplete_statement ENDLINE expression ENDLINE incomplete_statement RPAREN LCURLY list(statement) RCURLY
   { For ($3, $5, $7, $10) }
 
+| ident LPAREN separated_list(COMMA, ident) RPAREN LCURLY list(statement) RCURLY
+  { FuncDef ($1, $3, $6) }
+
 ;
 
 incomplete_statement: (* basically any one line statement *)
 | ident ASSIGN_EQUALS expression
   { Assign ($1, $3) }
+
+| ident LPAREN separated_list(COMMA, expression) RPAREN
+  { FuncCall($1, $3) }
 
 | PRINT expression
   { Print $2 } 

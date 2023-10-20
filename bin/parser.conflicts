@@ -1,0 +1,452 @@
+
+** Conflict (reduce/reduce) in state 77.
+** Tokens involved: RPAREN COMMA
+** The following explanations concentrate on token RPAREN.
+** This state is reached from program after reading:
+
+ident LPAREN ident
+
+** The derivations that appear below have the following common factor:
+** (The question mark symbol (?) represents the spot where the derivations begin to differ.)
+
+program 
+list(statement) EOF 
+statement list(statement) 
+(?)
+
+** In state 77, looking ahead at RPAREN, reducing production
+** expression -> ident
+** is permitted because of the following sub-derivation:
+
+incomplete_statement ENDLINE 
+ident LPAREN loption(separated_nonempty_list(COMMA,expression)) RPAREN // lookahead token appears
+             separated_nonempty_list(COMMA,expression) // lookahead token is inherited
+             expression // lookahead token is inherited
+             ident . 
+
+** In state 77, looking ahead at RPAREN, reducing production
+** separated_nonempty_list(COMMA,ident) -> ident
+** is permitted because of the following sub-derivation:
+
+ident LPAREN loption(separated_nonempty_list(COMMA,ident)) RPAREN LCURLY list(statement) RCURLY // lookahead token appears
+             separated_nonempty_list(COMMA,ident) // lookahead token is inherited
+             ident . 
+
+** Conflict (reduce/reduce) in state 67.
+** Token involved: RPAREN
+** This state is reached from program after reading:
+
+ident LPAREN
+
+** The derivations that appear below have the following common factor:
+** (The question mark symbol (?) represents the spot where the derivations begin to differ.)
+
+program 
+list(statement) EOF 
+statement list(statement) 
+(?)
+
+** In state 67, looking ahead at RPAREN, reducing production
+** loption(separated_nonempty_list(COMMA,expression)) ->
+** is permitted because of the following sub-derivation:
+
+incomplete_statement ENDLINE 
+ident LPAREN loption(separated_nonempty_list(COMMA,expression)) RPAREN // lookahead token appears
+             . 
+
+** In state 67, looking ahead at RPAREN, reducing production
+** loption(separated_nonempty_list(COMMA,ident)) ->
+** is permitted because of the following sub-derivation:
+
+ident LPAREN loption(separated_nonempty_list(COMMA,ident)) RPAREN LCURLY list(statement) RCURLY // lookahead token appears
+             . 
+
+** Conflict (shift/reduce) in state 40.
+** Tokens involved: LESS_EQ LESS GREATER_EQ GREATER
+** The following explanations concentrate on token LESS_EQ.
+** This state is reached from program after reading:
+
+PRINTLN NOT expression
+
+** The derivations that appear below have the following common factor:
+** (The question mark symbol (?) represents the spot where the derivations begin to differ.)
+
+program 
+list(statement) EOF 
+statement list(statement) 
+incomplete_statement ENDLINE 
+PRINTLN expression 
+        (?)
+
+** In state 40, looking ahead at LESS_EQ, shifting is permitted
+** because of the following sub-derivation:
+
+NOT expression 
+    expression . LESS_EQ expression 
+
+** In state 40, looking ahead at LESS_EQ, reducing production
+** expression -> NOT expression
+** is permitted because of the following sub-derivation:
+
+expression LESS_EQ expression // lookahead token appears
+NOT expression . 
+
+** Conflict (shift/reduce) in state 38.
+** Tokens involved: LESS_EQ LESS GREATER_EQ GREATER
+** The following explanations concentrate on token LESS_EQ.
+** This state is reached from program after reading:
+
+PRINTLN expression AND expression
+
+** The derivations that appear below have the following common factor:
+** (The question mark symbol (?) represents the spot where the derivations begin to differ.)
+
+program 
+list(statement) EOF 
+statement list(statement) 
+incomplete_statement ENDLINE 
+PRINTLN expression 
+        (?)
+
+** In state 38, looking ahead at LESS_EQ, shifting is permitted
+** because of the following sub-derivation:
+
+expression AND expression 
+               expression . LESS_EQ expression 
+
+** In state 38, looking ahead at LESS_EQ, reducing production
+** expression -> expression AND expression
+** is permitted because of the following sub-derivation:
+
+expression LESS_EQ expression // lookahead token appears
+expression AND expression . 
+
+** Conflict (shift/reduce) in state 36.
+** Tokens involved: LESS_EQ LESS GREATER_EQ GREATER
+** The following explanations concentrate on token LESS_EQ.
+** This state is reached from program after reading:
+
+PRINTLN expression BOOL_EQUALS expression
+
+** The derivations that appear below have the following common factor:
+** (The question mark symbol (?) represents the spot where the derivations begin to differ.)
+
+program 
+list(statement) EOF 
+statement list(statement) 
+incomplete_statement ENDLINE 
+PRINTLN expression 
+        (?)
+
+** In state 36, looking ahead at LESS_EQ, shifting is permitted
+** because of the following sub-derivation:
+
+expression BOOL_EQUALS expression 
+                       expression . LESS_EQ expression 
+
+** In state 36, looking ahead at LESS_EQ, reducing production
+** expression -> expression BOOL_EQUALS expression
+** is permitted because of the following sub-derivation:
+
+expression LESS_EQ expression // lookahead token appears
+expression BOOL_EQUALS expression . 
+
+** Conflict (shift/reduce) in state 34.
+** Tokens involved: LESS_EQ LESS GREATER_EQ GREATER
+** The following explanations concentrate on token LESS_EQ.
+** This state is reached from program after reading:
+
+PRINTLN expression DIV expression
+
+** The derivations that appear below have the following common factor:
+** (The question mark symbol (?) represents the spot where the derivations begin to differ.)
+
+program 
+list(statement) EOF 
+statement list(statement) 
+incomplete_statement ENDLINE 
+PRINTLN expression 
+        (?)
+
+** In state 34, looking ahead at LESS_EQ, reducing production
+** expression -> expression DIV expression
+** is permitted because of the following sub-derivation:
+
+expression LESS_EQ expression // lookahead token appears
+expression DIV expression . 
+
+** In state 34, looking ahead at LESS_EQ, shifting is permitted
+** because of the following sub-derivation:
+
+expression DIV expression 
+               expression . LESS_EQ expression 
+
+** Conflict (shift/reduce) in state 32.
+** Tokens involved: TIMES TERNARY_QUESTIONMARK PLUS OR MINUS LESS_EQ LESS GREATER_EQ GREATER DIV BOOL_EQUALS AND
+** The following explanations concentrate on token TIMES.
+** This state is reached from program after reading:
+
+PRINTLN expression GREATER expression
+
+** The derivations that appear below have the following common factor:
+** (The question mark symbol (?) represents the spot where the derivations begin to differ.)
+
+program 
+list(statement) EOF 
+statement list(statement) 
+incomplete_statement ENDLINE 
+PRINTLN expression 
+        (?)
+
+** In state 32, looking ahead at TIMES, shifting is permitted
+** because of the following sub-derivation:
+
+expression GREATER expression 
+                   expression . TIMES expression 
+
+** In state 32, looking ahead at TIMES, reducing production
+** expression -> expression GREATER expression
+** is permitted because of the following sub-derivation:
+
+expression TIMES expression // lookahead token appears
+expression GREATER expression . 
+
+** Conflict (shift/reduce) in state 30.
+** Tokens involved: TIMES TERNARY_QUESTIONMARK PLUS OR MINUS LESS_EQ LESS GREATER_EQ GREATER DIV BOOL_EQUALS AND
+** The following explanations concentrate on token TIMES.
+** This state is reached from program after reading:
+
+PRINTLN expression GREATER_EQ expression
+
+** The derivations that appear below have the following common factor:
+** (The question mark symbol (?) represents the spot where the derivations begin to differ.)
+
+program 
+list(statement) EOF 
+statement list(statement) 
+incomplete_statement ENDLINE 
+PRINTLN expression 
+        (?)
+
+** In state 30, looking ahead at TIMES, shifting is permitted
+** because of the following sub-derivation:
+
+expression GREATER_EQ expression 
+                      expression . TIMES expression 
+
+** In state 30, looking ahead at TIMES, reducing production
+** expression -> expression GREATER_EQ expression
+** is permitted because of the following sub-derivation:
+
+expression TIMES expression // lookahead token appears
+expression GREATER_EQ expression . 
+
+** Conflict (shift/reduce) in state 28.
+** Tokens involved: LESS_EQ LESS GREATER_EQ GREATER
+** The following explanations concentrate on token LESS_EQ.
+** This state is reached from program after reading:
+
+PRINTLN expression MINUS expression
+
+** The derivations that appear below have the following common factor:
+** (The question mark symbol (?) represents the spot where the derivations begin to differ.)
+
+program 
+list(statement) EOF 
+statement list(statement) 
+incomplete_statement ENDLINE 
+PRINTLN expression 
+        (?)
+
+** In state 28, looking ahead at LESS_EQ, reducing production
+** expression -> expression MINUS expression
+** is permitted because of the following sub-derivation:
+
+expression LESS_EQ expression // lookahead token appears
+expression MINUS expression . 
+
+** In state 28, looking ahead at LESS_EQ, shifting is permitted
+** because of the following sub-derivation:
+
+expression MINUS expression 
+                 expression . LESS_EQ expression 
+
+** Conflict (shift/reduce) in state 26.
+** Tokens involved: LESS_EQ LESS GREATER_EQ GREATER
+** The following explanations concentrate on token LESS_EQ.
+** This state is reached from program after reading:
+
+PRINTLN expression OR expression
+
+** The derivations that appear below have the following common factor:
+** (The question mark symbol (?) represents the spot where the derivations begin to differ.)
+
+program 
+list(statement) EOF 
+statement list(statement) 
+incomplete_statement ENDLINE 
+PRINTLN expression 
+        (?)
+
+** In state 26, looking ahead at LESS_EQ, shifting is permitted
+** because of the following sub-derivation:
+
+expression OR expression 
+              expression . LESS_EQ expression 
+
+** In state 26, looking ahead at LESS_EQ, reducing production
+** expression -> expression OR expression
+** is permitted because of the following sub-derivation:
+
+expression LESS_EQ expression // lookahead token appears
+expression OR expression . 
+
+** Conflict (shift/reduce) in state 24.
+** Tokens involved: TIMES TERNARY_QUESTIONMARK PLUS OR MINUS LESS_EQ LESS GREATER_EQ GREATER DIV BOOL_EQUALS AND
+** The following explanations concentrate on token TIMES.
+** This state is reached from program after reading:
+
+PRINTLN expression LESS expression
+
+** The derivations that appear below have the following common factor:
+** (The question mark symbol (?) represents the spot where the derivations begin to differ.)
+
+program 
+list(statement) EOF 
+statement list(statement) 
+incomplete_statement ENDLINE 
+PRINTLN expression 
+        (?)
+
+** In state 24, looking ahead at TIMES, shifting is permitted
+** because of the following sub-derivation:
+
+expression LESS expression 
+                expression . TIMES expression 
+
+** In state 24, looking ahead at TIMES, reducing production
+** expression -> expression LESS expression
+** is permitted because of the following sub-derivation:
+
+expression TIMES expression // lookahead token appears
+expression LESS expression . 
+
+** Conflict (shift/reduce) in state 22.
+** Tokens involved: LESS_EQ LESS GREATER_EQ GREATER
+** The following explanations concentrate on token LESS_EQ.
+** This state is reached from program after reading:
+
+PRINTLN expression PLUS expression
+
+** The derivations that appear below have the following common factor:
+** (The question mark symbol (?) represents the spot where the derivations begin to differ.)
+
+program 
+list(statement) EOF 
+statement list(statement) 
+incomplete_statement ENDLINE 
+PRINTLN expression 
+        (?)
+
+** In state 22, looking ahead at LESS_EQ, reducing production
+** expression -> expression PLUS expression
+** is permitted because of the following sub-derivation:
+
+expression LESS_EQ expression // lookahead token appears
+expression PLUS expression . 
+
+** In state 22, looking ahead at LESS_EQ, shifting is permitted
+** because of the following sub-derivation:
+
+expression PLUS expression 
+                expression . LESS_EQ expression 
+
+** Conflict (shift/reduce) in state 20.
+** Tokens involved: LESS_EQ LESS GREATER_EQ GREATER
+** The following explanations concentrate on token LESS_EQ.
+** This state is reached from program after reading:
+
+PRINTLN expression TERNARY_QUESTIONMARK expression TERNARY_COLON expression
+
+** The derivations that appear below have the following common factor:
+** (The question mark symbol (?) represents the spot where the derivations begin to differ.)
+
+program 
+list(statement) EOF 
+statement list(statement) 
+incomplete_statement ENDLINE 
+PRINTLN expression 
+        (?)
+
+** In state 20, looking ahead at LESS_EQ, shifting is permitted
+** because of the following sub-derivation:
+
+expression TERNARY_QUESTIONMARK expression TERNARY_COLON expression 
+                                                         expression . LESS_EQ expression 
+
+** In state 20, looking ahead at LESS_EQ, reducing production
+** expression -> expression TERNARY_QUESTIONMARK expression TERNARY_COLON expression
+** is permitted because of the following sub-derivation:
+
+expression LESS_EQ expression // lookahead token appears
+expression TERNARY_QUESTIONMARK expression TERNARY_COLON expression . 
+
+** Conflict (shift/reduce) in state 16.
+** Tokens involved: TIMES TERNARY_QUESTIONMARK PLUS OR MINUS LESS_EQ LESS GREATER_EQ GREATER DIV BOOL_EQUALS AND
+** The following explanations concentrate on token TIMES.
+** This state is reached from program after reading:
+
+PRINTLN expression LESS_EQ expression
+
+** The derivations that appear below have the following common factor:
+** (The question mark symbol (?) represents the spot where the derivations begin to differ.)
+
+program 
+list(statement) EOF 
+statement list(statement) 
+incomplete_statement ENDLINE 
+PRINTLN expression 
+        (?)
+
+** In state 16, looking ahead at TIMES, shifting is permitted
+** because of the following sub-derivation:
+
+expression LESS_EQ expression 
+                   expression . TIMES expression 
+
+** In state 16, looking ahead at TIMES, reducing production
+** expression -> expression LESS_EQ expression
+** is permitted because of the following sub-derivation:
+
+expression TIMES expression // lookahead token appears
+expression LESS_EQ expression . 
+
+** Conflict (shift/reduce) in state 14.
+** Tokens involved: LESS_EQ LESS GREATER_EQ GREATER
+** The following explanations concentrate on token LESS_EQ.
+** This state is reached from program after reading:
+
+PRINTLN expression TIMES expression
+
+** The derivations that appear below have the following common factor:
+** (The question mark symbol (?) represents the spot where the derivations begin to differ.)
+
+program 
+list(statement) EOF 
+statement list(statement) 
+incomplete_statement ENDLINE 
+PRINTLN expression 
+        (?)
+
+** In state 14, looking ahead at LESS_EQ, reducing production
+** expression -> expression TIMES expression
+** is permitted because of the following sub-derivation:
+
+expression LESS_EQ expression // lookahead token appears
+expression TIMES expression . 
+
+** In state 14, looking ahead at LESS_EQ, shifting is permitted
+** because of the following sub-derivation:
+
+expression TIMES expression 
+                 expression . LESS_EQ expression 
