@@ -48,6 +48,8 @@ for (i = 0; i <= 7; i = i + 1) {
     println i;
 }
 
+var1 = "hi";
+
 type bruh(var1, foo) {
     println "lmao";
     println var1;
