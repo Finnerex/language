@@ -58,6 +58,9 @@ foo = 9 + 10;
 
 bruh("what's up dawg", foo);
 
+print "printing var1: ";
+println var1;
+
 // one lines
 
 /*
