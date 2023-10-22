@@ -3,11 +3,35 @@ open Ast
 exception TypeMismatch
 exception Unimplemented
 
-[@@@ocaml.warning "-27"]
+(* [@@@ocaml.warning "-27"] *)
 
-module PrgmSt = Map.Make(Ident);;
+module IdentMap = Map.Make(Ident);;
 
-let rec eval_expr (state:expr PrgmSt.t) (e:expr) =
+module PrgmSt =
+  struct
+    type t = 
+    | PrgmSt of (Ident.t list * statement list) IdentMap.t * expr IdentMap.t
+    let add_var p i v =
+      match p with
+      | PrgmSt(fm, vm) -> PrgmSt (fm, IdentMap.add i v vm)
+    let rec add_vars p (ivl:(Ident.t * expr) list) =
+      match ivl with
+      | [] -> p
+      | (i, v)::ivl2 -> add_vars (add_var p i v) ivl2
+    let add_func p i f =
+      match p with
+      | PrgmSt(fm, vm) -> PrgmSt (IdentMap.add i f fm, vm)
+    let find_var p i =
+      match p with
+      | PrgmSt(_, vm) -> IdentMap.find i vm
+    let find_func p i =
+      match p with
+      | PrgmSt(fm, _) -> IdentMap.find i fm
+    let empty =
+      PrgmSt (IdentMap.empty, IdentMap.empty)
+  end
+
+let rec eval_expr (state:PrgmSt.t) (e:expr) =
   match e with
   | Int x -> Int x
   | Bool x -> Bool x
@@ -79,7 +103,7 @@ let rec eval_expr (state:expr PrgmSt.t) (e:expr) =
     | Bool false -> eval_expr state e2
     | _ -> raise TypeMismatch)
 
-  | Var(i) -> PrgmSt.find i state
+  | Var(i) -> PrgmSt.find_var state i
   
   (* | _ -> raise Unimplemented *)
 
@@ -88,11 +112,19 @@ let rec flatten_list (accum:'b -> 'a -> 'b) (l:'a list) (i:'b) =
   | [] -> i
   | sm :: l2 -> accum i sm |> flatten_list accum l2
 
-let rec eval_statement (state:expr PrgmSt.t) (sm:statement) = 
+let rec eval_statement (state:PrgmSt.t) (sm:statement) = 
   match sm with
 
   | Assign(v, e) -> 
-    PrgmSt.add v (eval_expr state e) state
+    PrgmSt.add_var state v (eval_expr state e)
+  
+  | FuncDef(i, vl, sml) ->
+    PrgmSt.add_func state i (vl, sml)
+  
+  | FuncCall(i, el) ->
+    let (vl, sml) = PrgmSt.find_func state i in
+    let new_state = List.combine vl (List.map (eval_expr state) el) |> PrgmSt.add_vars state in
+    flatten_list eval_statement sml new_state
 
   | If(l) ->
     (match l with
@@ -131,5 +163,5 @@ let rec eval_statement (state:expr PrgmSt.t) (sm:statement) =
   
   (* | _ -> raise Unimplemented *)
 
-let eval_statements (sml:statement list) (state:expr PrgmSt.t) =
+let eval_statements (sml:statement list) (state:PrgmSt.t) =
   flatten_list eval_statement sml state

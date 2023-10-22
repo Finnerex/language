@@ -48,6 +48,8 @@ rule token = parse
 | '?'        { TERNARY_QUESTIONMARK }
 | ':'        { TERNARY_COLON }
 
+| ','        { COMMA }
+
 | "println"  { PRINTLN }
 | "print"    { PRINT }
 

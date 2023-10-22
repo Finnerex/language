@@ -79,8 +79,8 @@ statement:
 | FOR LPAREN incomplete_statement ENDLINE expression ENDLINE incomplete_statement RPAREN LCURLY list(statement) RCURLY
   { For ($3, $5, $7, $10) }
 
-| ident LPAREN separated_list(COMMA, ident) RPAREN LCURLY list(statement) RCURLY
-  { FuncDef ($1, $3, $6) }
+| ident ident LPAREN separated_list(COMMA, ident) RPAREN LCURLY list(statement) RCURLY
+  { FuncDef ($2, $4, $7) }
 
 ;
 
