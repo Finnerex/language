@@ -22,10 +22,10 @@ module StLvl =
     let add_func s i f =
       match s with
       | StLvl(fm, vm) -> StLvl (IdentMap.add i f fm, vm)
-    let find_var s i =
+    let find_var_opt s i =
       match s with
       | StLvl(_, vm) -> IdentMap.find_opt i vm
-    let find_func s i =
+    let find_func_opt s i =
       match s with
       | StLvl(fm, _) -> IdentMap.find_opt i fm
     let empty =
@@ -75,7 +75,7 @@ module PrgmSt =
         (match sl with
         | [] -> raise Not_found
         | s::new_sl ->
-          (match StLvl.find_var s i with
+          (match StLvl.find_var_opt s i with
           | Some(v) -> v
           | None -> find_var (PrgmSt new_sl) i))
     let rec find_func p i =
@@ -84,7 +84,7 @@ module PrgmSt =
         (match sl with
         | [] -> raise Not_found
         | s::new_sl ->
-          (match StLvl.find_func s i with
+          (match StLvl.find_func_opt s i with
           | Some(f) -> f
           | None -> find_func (PrgmSt new_sl) i))
     let empty =
