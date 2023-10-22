@@ -183,8 +183,9 @@ let rec eval_statement (state:PrgmSt.t) (sm:statement) =
   
   | FuncCall(i, el) ->
     let (vl, sml) = PrgmSt.find_func state i in
-    let new_state = List.combine vl (List.map (eval_expr state) el) |> PrgmSt.add_vars state in
-    flatten_list eval_statement sml new_state
+    let pushed_state = PrgmSt.push_stack state in
+    let new_state = List.combine vl (List.map (eval_expr pushed_state) el) |> PrgmSt.add_vars pushed_state in
+    flatten_list eval_statement sml new_state |> PrgmSt.pop_stack
 
   | If(l) ->
     (match l with
