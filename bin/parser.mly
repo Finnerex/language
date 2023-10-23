@@ -41,8 +41,8 @@
 
 (* precedents, lower prec comes first *)
 %left TERNARY_QUESTIONMARK TERNARY_COLON
-%right OR 
 %right AND
+%right OR
 %left BOOL_EQUALS
 %nonassoc GREATER GREATER_EQ LESS LESS_EQ
 %left PLUS MINUS
