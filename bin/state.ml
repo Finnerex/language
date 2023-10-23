@@ -7,25 +7,25 @@ module IdentMap = Map.Make(Ident);;
 module StLvl =
   struct
     type t = 
-    | StLvl of (Ident.t list * statement list) IdentMap.t * expr IdentMap.t
+    | StLvl of (Ident.t, (Ident.t list * statement list)) Hashtbl.t * (Ident.t, expr) Hashtbl.t
     let add_var s i v =
       match s with
-      | StLvl(fm, vm) -> StLvl (fm, IdentMap.add i v vm)
+      | StLvl(_, vm) -> Hashtbl.replace vm i v
     let rec add_vars s (ivl:(Ident.t * expr) list) =
       match ivl with
-      | [] -> s
-      | (i, v)::ivl2 -> add_vars (add_var s i v) ivl2
+      | [] -> ()
+      | (i, v)::ivl2 -> add_var s i v; add_vars s ivl2
     let add_func s i f =
       match s with
-      | StLvl(fm, vm) -> StLvl (IdentMap.add i f fm, vm)
+      | StLvl(fm, _) -> Hashtbl.replace fm i f
     let find_var_opt s i =
       match s with
-      | StLvl(_, vm) -> IdentMap.find_opt i vm
+      | StLvl(_, vm) -> Hashtbl.find_opt vm i
     let find_func_opt s i =
       match s with
-      | StLvl(fm, _) -> IdentMap.find_opt i fm
+      | StLvl(fm, _) -> Hashtbl.find_opt fm i
     let empty =
-      StLvl (IdentMap.empty, IdentMap.empty)
+      StLvl (Hashtbl.create 100, Hashtbl.create 100)
   end
 
 module PrgmSt =
@@ -46,25 +46,22 @@ module PrgmSt =
       | PrgmSt(sl) ->
         (match sl with
         | [] -> raise Invalid_state
-        | s::new_sl ->
-          let new_s = StLvl.add_var s i v in
-          PrgmSt (new_s::new_sl))
+        | s::_ ->
+          StLvl.add_var s i v)
     let add_vars p (ivl:(Ident.t * expr) list) =
       match p with
       | PrgmSt(sl) ->
         (match sl with
         | [] -> raise Invalid_state
-        | s::new_sl ->
-          let new_s = StLvl.add_vars s ivl in
-          PrgmSt (new_s::new_sl))
+        | s::_ ->
+          StLvl.add_vars s ivl)
     let add_func p i f =
       match p with
       | PrgmSt(sl) ->
         (match sl with
         | [] -> raise Invalid_state
-        | s::new_sl ->
-          let new_s = StLvl.add_func s i f in
-          PrgmSt (new_s::new_sl))
+        | s::_ ->
+          StLvl.add_func s i f)
     let rec find_var p i =
       match p with
       | PrgmSt(sl) ->

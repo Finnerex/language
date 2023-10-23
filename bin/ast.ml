@@ -17,6 +17,7 @@ type expr =
 | Int of int
 | Bool of bool
 | EString of string
+| Systime
 
 | Var of Ident.t
 

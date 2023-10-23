@@ -54,6 +54,8 @@ rule token = parse
 | "println"  { PRINTLN }
 | "print"    { PRINT }
 
+| "systime"  { SYSTIME }
+
 | ';'        { ENDLINE }
 | eof        { EOF }
 | ";;"       { EOF }

@@ -33,6 +33,8 @@
 %token IF ELSE
 %token WHILE FOR
 
+%token SYSTIME
+
 %token PRINT
 %token PRINTLN
 
@@ -134,6 +136,9 @@ expression:
 
 | STRING_LIT
   { EString $1 }
+
+| SYSTIME
+  { Systime }
 
 | ident
   { Var $1 }
