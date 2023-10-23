@@ -42,10 +42,14 @@ type expr =
 (* Statements *)
 type statement =
 | Assign of Ident.t * expr
+
 | If of (expr * statement list) list
+
 | While of expr * statement list
 | For of statement * expr * statement * statement list
+
 | FuncDef of Ident.t * Ident.t list * statement list
 | FuncCall of Ident.t * expr list
+
 | Print of expr
 | PrintLn of expr
