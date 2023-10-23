@@ -21,7 +21,7 @@
 
 (* Arithmetic operators *)
 %token PLUS MINUS
-%token TIMES DIV
+%token TIMES DIV MODULO
 
 (* Boolean opperators *)
 %token AND OR NOT BOOL_EQUALS
@@ -46,7 +46,7 @@
 %left BOOL_EQUALS
 %nonassoc GREATER GREATER_EQ LESS LESS_EQ
 %left PLUS MINUS
-%left TIMES DIV
+%left TIMES DIV MODULO
 %right NOT
 
 
@@ -150,6 +150,9 @@ expression:
 
 | expression DIV expression (* { $1 / $3 } *)
   { Div($1, $3) }
+
+| expression MODULO expression
+  { Modulo($1, $3) }
 
 | expression LESS_EQ expression
   { LessEq($1, $3) }

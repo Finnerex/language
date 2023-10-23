@@ -69,4 +69,6 @@ println var1;
     multiple lines
 */
 
+println 32 % 3;
+
 /*cobment*/println "all done";

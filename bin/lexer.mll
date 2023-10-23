@@ -20,6 +20,7 @@ rule token = parse
 | '-'        { MINUS }
 | '*'        { TIMES }
 | '/'        { DIV }
+| '%'        { MODULO }
 
 | '('        { LPAREN }
 | ')'        { RPAREN }

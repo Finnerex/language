@@ -36,6 +36,7 @@ type expr =
 | Minus of expr * expr
 | Times of expr * expr
 | Div of expr * expr
+| Modulo of expr * expr
 
 | Ternary of expr * expr * expr
 
