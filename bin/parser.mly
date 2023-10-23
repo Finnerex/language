@@ -40,11 +40,11 @@
 %token EOF
 
 (* precedents, lower prec comes first *)
-%right ASSIGN_EQUALS
 %left TERNARY_QUESTIONMARK TERNARY_COLON
 %right OR 
 %right AND
 %left BOOL_EQUALS
+%nonassoc GREATER GREATER_EQ LESS LESS_EQ
 %left PLUS MINUS
 %left TIMES DIV
 %right NOT
