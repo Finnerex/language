@@ -87,10 +87,10 @@ let rec eval_expr (state:PrgmSt.t) (e:expr) =
   
   (* | _ -> raise Unimplemented *)
 
-let rec flatten_list (accum:'b -> 'a -> 'b) (l:'a list) (i:'b) =
+let rec flatten_list (accum:'b -> 'a -> unit) (l:'a list) i:'b =
   match l with
   | [] -> i
-  | sm :: l2 -> accum i sm |> flatten_list accum l2
+  | sm :: l2 -> accum i sm; flatten_list accum l2 i
 
 let rec eval_statement (state:PrgmSt.t) (sm:statement) = 
   match sm with
@@ -113,7 +113,7 @@ let rec eval_statement (state:PrgmSt.t) (sm:statement) =
     | [] -> ()
     | (b, sml) :: xs ->
       (match eval_expr state b with
-      | Bool true -> flatten_list eval_statement sml state; ()
+      | Bool true -> let _ = flatten_list eval_statement sml state in ()
       | Bool false -> eval_statement state (If xs); ()
       | _ -> raise TypeMismatch))
   
@@ -123,12 +123,12 @@ let rec eval_statement (state:PrgmSt.t) (sm:statement) =
       let new_state = flatten_list eval_statement sml state in 
       eval_statement new_state sm
 
-    | Bool false -> state
+    | Bool false -> ()
     | _ -> raise TypeMismatch)
 
   | For(is, e, ls, sml) ->
-    let new_state = eval_statement state is in
-    eval_statement new_state (While(e, sml @ [ls]))
+    let _ = eval_statement state is in
+    eval_statement state (While(e, sml @ [ls]))
 
   | Print(e) -> 
     Printf.printf "%s" (match eval_expr state e with
@@ -136,7 +136,7 @@ let rec eval_statement (state:PrgmSt.t) (sm:statement) =
      | Bool x -> string_of_bool x
      | EString x -> x
      | _ -> "somethin else");
-     state
+     ()
 
   | PrintLn(e) ->
     let state = eval_statement state (Print e) in
