@@ -12,6 +12,7 @@ let rec eval_expr (state:PrgmSt.t) (e:expr) =
   | Bool x -> Bool x
   | EString x -> EString x
   | Systime -> Int (int_of_float (Sys.time () *. 1000.0))
+  
   | Plus(e1, e2) ->
     (match eval_expr state e1, eval_expr state e2 with
     | Int i1, Int i2 -> Int(i1 + i2)
@@ -31,6 +32,7 @@ let rec eval_expr (state:PrgmSt.t) (e:expr) =
     (match eval_expr state e1, eval_expr state e2 with
     | Int i1, Int i2 -> Int(i1 / i2)
     | _ -> raise TypeMismatch)
+
   | Modulo(e1, e2) ->
     (match eval_expr state e1, eval_expr state e2 with
     | Int i1, Int i2 -> Int(i1 mod i2)
