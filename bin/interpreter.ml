@@ -105,10 +105,10 @@ let rec eval_statement (state:PrgmSt.t) (sm:statement) =
   
   | FuncCall(i, el) ->
     let (vl, sml) = PrgmSt.find_func state i in
-    let pushed_state = PrgmSt.push_stack state in
-      List.combine vl (List.map (eval_expr pushed_state) el) |> PrgmSt.add_vars pushed_state;
-      List.iter (eval_statement pushed_state) sml; 
-      let _ = PrgmSt.pop_stack pushed_state in ()
+    PrgmSt.push_stack state;
+    List.combine vl (List.map (eval_expr state) el) |> PrgmSt.add_vars state;
+    List.iter (eval_statement state) sml; 
+    PrgmSt.pop_stack state
 
   | If(l) ->
     (match l with
