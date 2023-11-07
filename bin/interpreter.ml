@@ -94,6 +94,10 @@ let rec flatten_list (accum:'b -> 'a -> unit) (l:'a list) i:'b =
   | [] -> i
   | sm :: l2 -> accum i sm; flatten_list accum l2 i
 
+let print_addr a = 
+  let address = 2*(Obj.magic a) in
+  Printf.printf "%d\n" address;;
+
 let rec eval_statement (state:PrgmSt.t) (sm:statement) = 
   match sm with
 
@@ -105,10 +109,18 @@ let rec eval_statement (state:PrgmSt.t) (sm:statement) =
   
   | FuncCall(i, el) ->
     let (vl, sml) = PrgmSt.find_func state i in
+    Printf.printf "addr before:";
+    print_addr (match state with | PrgmSt(sl) -> sl);
     PrgmSt.push_stack state;
+    Printf.printf "addr after push:";
+    print_addr (match state with | PrgmSt(sl) -> sl);
     List.combine vl (List.map (eval_expr state) el) |> PrgmSt.add_vars state;
-    List.iter (eval_statement state) sml; 
-    PrgmSt.pop_stack state
+    List.iter (eval_statement state) sml;
+    Printf.printf "addr after evaluation:";
+    print_addr (match state with | PrgmSt(sl) -> sl);
+    PrgmSt.pop_stack state;
+    Printf.printf "addr after pop:";
+    print_addr (match state with | PrgmSt(sl) -> sl);
 
   | If(l) ->
     (match l with
