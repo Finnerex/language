@@ -27,7 +27,7 @@ module StLvl =
     let empty =
       StLvl (Hashtbl.create 100, Hashtbl.create 100)
   end
-
+(* 
 let program_state : StLvl.t list ref = (ref [StLvl.empty])
 
 let push_stack = program_state := StLvl.empty :: !program_state
@@ -66,59 +66,58 @@ let rec find_func p i =
   | s::new_sl ->
     (match StLvl.find_func_opt s i with
     | Some(f) -> f
-    | None -> find_func (ref new_sl) i))
+    | None -> find_func (ref new_sl) i)) *)
 
-(* module PrgmSt =
+module PrgmSt =
   struct
-    type t =
-    | PrgmSt of StLvl.t list ref
-    let push_stack = function
-    | PrgmSt(sl) ->
-      sl := StLvl.empty::!sl;;
-    let pop_stack = function
-    | PrgmSt(sl) -> 
+    type t = StLvl.t list ref
+    let push_stack sl = (* function *)
+    (* | PrgmSt(sl) -> *)
+      sl := StLvl.empty :: !sl;;
+    let pop_stack sl = (* function *)
+    (* | PrgmSt(sl) ->  *)
       (match !sl with
       | [] -> raise Invalid_state
-      | _::new_sl -> sl := new_sl)
-    let add_var p i v =
-      match p with
-      | PrgmSt(sl) ->
+      | _ :: new_sl -> sl := new_sl)
+    let add_var sl i v =
+      (* match p with
+      | PrgmSt(sl) -> *)
         (match !sl with
         | [] -> raise Invalid_state
-        | s::_ ->
+        | s :: _ ->
           StLvl.add_var s i v)
-    let add_vars p (ivl:(Ident.t * expr) list) =
-      match p with
-      | PrgmSt(sl) ->
+    let add_vars sl (ivl:(Ident.t * expr) list) =
+      (* match p with
+      | PrgmSt(sl) -> *)
         (match !sl with
         | [] -> raise Invalid_state
-        | s::_ ->
+        | s :: _ ->
           StLvl.add_vars s ivl)
-    let add_func p i f =
-      match p with
-      | PrgmSt(sl) ->
+    let add_func sl i f =
+      (* match p with
+      | PrgmSt(sl) -> *)
         (match !sl with
         | [] -> raise Invalid_state
-        | s::_ ->
+        | s :: _ ->
           StLvl.add_func s i f)
-    let rec find_var p i =
-      match p with
-      | PrgmSt(sl) ->
+    let rec find_var sl i =
+      (* match p with
+      | PrgmSt(sl) -> *)
         (match !sl with
         | [] -> raise Not_found
-        | s::new_sl ->
+        | s :: new_sl ->
           (match StLvl.find_var_opt s i with
           | Some(v) -> v
-          | None -> find_var (PrgmSt (ref new_sl)) i))
-    let rec find_func p i =
-      match p with
-      | PrgmSt(sl) ->
+          | None -> find_var (ref new_sl) i))
+    let rec find_func sl i =
+      (* match p with
+      | PrgmSt(sl) -> *)
         (match !sl with
         | [] -> raise Not_found
-        | s::new_sl ->
+        | s :: new_sl ->
           (match StLvl.find_func_opt s i with
           | Some(f) -> f
-          | None -> find_func (PrgmSt (ref new_sl)) i))
+          | None -> find_func (ref new_sl) i))
     let empty =
-      PrgmSt (ref [StLvl.empty])
-  end *)
+      ref [StLvl.empty]
+  end

@@ -110,17 +110,17 @@ let rec eval_statement (state:PrgmSt.t) (sm:statement) =
   | FuncCall(i, el) ->
     let (vl, sml) = PrgmSt.find_func state i in
     Printf.printf "addr before:";
-    print_addr (match state with | PrgmSt(sl) -> sl);
+    print_addr (state);
     PrgmSt.push_stack state;
     Printf.printf "addr after push:";
-    print_addr (match state with | PrgmSt(sl) -> sl);
+    print_addr (state);
     List.combine vl (List.map (eval_expr state) el) |> PrgmSt.add_vars state;
     List.iter (eval_statement state) sml;
     Printf.printf "addr after evaluation:";
-    print_addr (match state with | PrgmSt(sl) -> sl);
+    print_addr (state);
     PrgmSt.pop_stack state;
     Printf.printf "addr after pop:";
-    print_addr (match state with | PrgmSt(sl) -> sl);
+    print_addr (state);
 
   | If(l) ->
     (match l with
