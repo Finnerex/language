@@ -28,7 +28,47 @@ module StLvl =
       StLvl (Hashtbl.create 100, Hashtbl.create 100)
   end
 
-module PrgmSt =
+let program_state : StLvl.t list ref = (ref [StLvl.empty])
+
+let push_stack = program_state := StLvl.empty :: !program_state
+
+let pop_stack = 
+  (match !program_state with
+  | [] -> raise Invalid_state
+  | _ :: new_sl -> program_state := new_sl)
+
+let rec add_var i v =
+  (match !program_state with
+  | [] -> raise Invalid_state
+  | s :: _ -> StLvl.add_var s i v)
+
+let add_vars ivl = 
+  (match !program_state with
+  | [] -> raise Invalid_state
+  | s :: _ -> StLvl.add_vars s ivl)
+
+let add_func i f =
+  (match !program_state with
+  | [] -> raise Invalid_state
+  | s :: _ -> StLvl.add_func s i f)
+
+let rec find_var p i = 
+  (match !p with
+  | [] -> raise Not_found
+  | s :: new_sl ->
+    (match StLvl.find_var_opt s i with
+    | Some(v) -> v
+    | None -> find_var (ref new_sl) i))
+
+let rec find_func p i =
+  (match !p with
+  | [] -> raise Not_found
+  | s::new_sl ->
+    (match StLvl.find_func_opt s i with
+    | Some(f) -> f
+    | None -> find_func (ref new_sl) i))
+
+(* module PrgmSt =
   struct
     type t =
     | PrgmSt of StLvl.t list ref
@@ -81,4 +121,4 @@ module PrgmSt =
           | None -> find_func (PrgmSt (ref new_sl)) i))
     let empty =
       PrgmSt (ref [StLvl.empty])
-  end
+  end *)
