@@ -12,12 +12,12 @@ let rec eval_expr (state:PrgmSt.t) (e:expr) =
   | Bool x -> Bool x
   | EString x -> EString x
   | Systime -> Int (int_of_float (Sys.time () *. 1000.0))
-  
+
   | Plus(e1, e2) ->
     (match eval_expr state e1, eval_expr state e2 with
     | Int i1, Int i2 -> Int(i1 + i2)
     | _ -> raise TypeMismatch)
-    
+  
   | Minus(e1, e2) ->
     (match eval_expr state e1, eval_expr state e2 with
     | Int i1, Int i2 -> Int(i1 - i2)
@@ -89,14 +89,10 @@ let rec eval_expr (state:PrgmSt.t) (e:expr) =
   
   (* | _ -> raise Unimplemented *)
 
-let rec flatten_list (accum:'b -> 'a -> unit) (l:'a list) i:'b =
+let rec flatten_list (accum:'b -> 'a -> 'b) (l:'a list) (i:'b) =
   match l with
   | [] -> i
-  | sm :: l2 -> accum i sm; flatten_list accum l2 i
-
-let print_addr a = 
-  let address = 2*(Obj.magic a) in
-  Printf.printf "%d\n" address;;
+  | sm :: l2 -> accum i sm |> flatten_list accum l2
 
 let rec eval_statement (state:PrgmSt.t) (sm:statement) = 
   match sm with
@@ -109,26 +105,17 @@ let rec eval_statement (state:PrgmSt.t) (sm:statement) =
   
   | FuncCall(i, el) ->
     let (vl, sml) = PrgmSt.find_func state i in
-    Printf.printf "addr before:";
-    print_addr (state);
-    PrgmSt.push_stack state;
-    Printf.printf "addr after push:";
-    print_addr (state);
-    List.combine vl (List.map (eval_expr state) el) |> PrgmSt.add_vars state;
-    List.iter (eval_statement state) sml;
-    Printf.printf "addr after evaluation:";
-    print_addr (state);
-    PrgmSt.pop_stack state;
-    Printf.printf "addr after pop:";
-    print_addr (state);
+    let pushed_state = PrgmSt.push_stack state in
+    let new_state = List.combine vl (List.map (eval_expr pushed_state) el) |> PrgmSt.add_vars pushed_state in
+    flatten_list eval_statement sml new_state |> PrgmSt.pop_stack
 
   | If(l) ->
     (match l with
-    | [] -> ()
+    | [] -> state
     | (b, sml) :: xs ->
       (match eval_expr state b with
-      | Bool true -> let _ = flatten_list eval_statement sml state in ()
-      | Bool false -> eval_statement state (If xs); ()
+      | Bool true -> flatten_list eval_statement sml state
+      | Bool false -> eval_statement state (If xs)
       | _ -> raise TypeMismatch))
   
   | While(e, sml) ->
@@ -137,12 +124,12 @@ let rec eval_statement (state:PrgmSt.t) (sm:statement) =
       let new_state = flatten_list eval_statement sml state in 
       eval_statement new_state sm
 
-    | Bool false -> ()
+    | Bool false -> state
     | _ -> raise TypeMismatch)
 
   | For(is, e, ls, sml) ->
-    let _ = eval_statement state is in
-    eval_statement state (While(e, sml @ [ls]))
+    let new_state = eval_statement state is in
+    eval_statement new_state (While(e, sml @ [ls]))
 
   | Print(e) -> 
     Printf.printf "%s" (match eval_expr state e with
@@ -150,7 +137,7 @@ let rec eval_statement (state:PrgmSt.t) (sm:statement) =
      | Bool x -> string_of_bool x
      | EString x -> x
      | _ -> "somethin else");
-     ()
+     state
 
   | PrintLn(e) ->
     let state = eval_statement state (Print e) in
