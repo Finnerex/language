@@ -7,25 +7,25 @@ module IdentMap = Map.Make(Ident);;
 module StLvl =
   struct
     type t = 
-    | StLvl of (Ident.t list * statement list) IdentMap.t * expr IdentMap.t
+    | StLvl of (Ident.t, (Ident.t list * statement list)) Hashtbl.t * (Ident.t, expr) Hashtbl.t
     let add_var s i v =
       match s with
-      | StLvl(fm, vm) -> StLvl (fm, IdentMap.add i v vm)
+      | StLvl(fm, vm) -> Hashtbl.replace vm i v; StLvl (fm, vm)
     let rec add_vars s (ivl:(Ident.t * expr) list) =
       match ivl with
       | [] -> s
       | (i, v)::ivl2 -> add_vars (add_var s i v) ivl2
     let add_func s i f =
       match s with
-      | StLvl(fm, vm) -> StLvl (IdentMap.add i f fm, vm)
+      | StLvl(fm, vm) -> Hashtbl.replace fm i f; StLvl (fm, vm)
     let find_var_opt s i =
       match s with
-      | StLvl(_, vm) -> IdentMap.find_opt i vm
+      | StLvl(_, vm) -> Hashtbl.find_opt vm i
     let find_func_opt s i =
       match s with
-      | StLvl(fm, _) -> IdentMap.find_opt i fm
+      | StLvl(fm, _) -> Hashtbl.find_opt fm i
     let empty =
-      StLvl (IdentMap.empty, IdentMap.empty)
+      StLvl (Hashtbl.create 64, Hashtbl.create 32)
   end
 
 module PrgmSt =
