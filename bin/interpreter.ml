@@ -147,17 +147,21 @@ let rec eval_statement (state:PrgmSt.t) (sm:statement) =
     | [] -> state
     | (b, sml) :: xs ->
       let new_b, new_state = eval_expr state b in
-      (match new_b with
-      | Bool true -> flatten_list eval_statement sml new_state
-      | Bool false -> eval_statement new_state (If xs)
-      | _ -> raise TypeMismatch))
+      let pushed_state = PrgmSt.push_stack new_state in
+      let if_state = (match new_b with
+      | Bool true -> flatten_list eval_statement sml pushed_state
+      | Bool false -> eval_statement pushed_state (If xs)
+      | _ -> raise TypeMismatch) in
+      PrgmSt.pop_stack if_state)
   
   | While(e, sml) ->
     let new_e, new_state = eval_expr state e in
     (match new_e with
-    | Bool true -> 
-      let new_new_state = flatten_list eval_statement sml new_state in 
-      eval_statement new_new_state sm
+    | Bool true ->
+      let pushed_state = PrgmSt.push_stack new_state in
+      let eval_state = flatten_list eval_statement sml pushed_state in
+      let popped_state = PrgmSt.pop_stack eval_state in
+      eval_statement popped_state sm
 
     | Bool false -> new_state
     | _ -> raise TypeMismatch)
