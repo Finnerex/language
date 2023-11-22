@@ -24,7 +24,7 @@ module StLvl =
     let find_func_opt s i =
       match s with
       | StLvl(fm, _) -> Hashtbl.find_opt fm i
-    let empty =
+    let empty () =
       StLvl (Hashtbl.create 64, Hashtbl.create 32)
   end
 
@@ -34,8 +34,7 @@ module PrgmSt =
     | PrgmSt of StLvl.t list
     let push_stack = function
     | PrgmSt(sl) ->
-      let new_sl = StLvl.empty::sl in
-      PrgmSt new_sl
+      PrgmSt (StLvl.empty ()::sl)
     let pop_stack = function
     | PrgmSt(sl) -> 
       (match sl with
@@ -84,5 +83,5 @@ module PrgmSt =
           | Some(f) -> f
           | None -> find_func (PrgmSt new_sl) i))
     let empty =
-      PrgmSt [StLvl.empty]
+      PrgmSt [StLvl.empty ()]
   end
