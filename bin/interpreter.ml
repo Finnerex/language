@@ -6,11 +6,14 @@ exception Unimplemented
 
 (* [@@@ocaml.warning "-27"] *)
 
+
+
 let rec eval_expr (state:PrgmSt.t) (e:expr) =
   match e with
-  | Int x -> (Int x, state)
-  | Bool x -> (Bool x, state)
-  | EString x -> (EString x, state)
+  | Int(x) -> Int(x), state
+  | Bool(x) -> Bool(x), state
+  | EString(x) -> EString(x), state
+
   | Systime -> (Int (int_of_float (Sys.time () *. 1000.0)), state)
 
   | Plus(e1, e2) ->
@@ -46,9 +49,9 @@ let rec eval_expr (state:PrgmSt.t) (e:expr) =
     | Var(id) ->
       let e, state2 = eval_expr state v in
       (match e with
-      | Int i ->
+      | TypedExpr (t, Int i) ->
         let iv = Int (i + 1) in
-        let state3 = PrgmSt.add_var state2 id iv in
+        let state3 = PrgmSt.add_var state2 id iv t in
         (iv, state3)
       | _ -> raise TypeMismatch)
     | _ -> raise TypeMismatch)
@@ -58,8 +61,8 @@ let rec eval_expr (state:PrgmSt.t) (e:expr) =
     | Var(id) -> 
       let e, state2 = eval_expr state v in
       (match e with
-      | Int i ->
-        let state3 = PrgmSt.add_var state2 id (Int (i + 1)) in
+      | TypedExpr (t, Int i) ->
+        let state3 = PrgmSt.add_var state2 id (Int (i + 1)) t in
         (e, state3)
       | _ -> raise TypeMismatch)
     | _ -> raise TypeMismatch)
@@ -134,9 +137,20 @@ let rec eval_expr (state:PrgmSt.t) (e:expr) =
     | Bool false -> eval_expr new_state e2
     | _ -> raise TypeMismatch)
 
-  | Var(i) -> (PrgmSt.find_var state i, state)
+  | Var(i) -> let t, e = PrgmSt.find_var state i in TypedExpr(t, e), state
+
+  | TypedExpr(t, e) -> TypedExpr(t, e), state
   
   (* | _ -> raise Unimplemented *)
+
+  let eval_type (state:PrgmSt.t) (e:expr) =
+    let new_e, _ = eval_expr state e in
+    match new_e with
+    | TypedExpr(t, _) -> t
+    | Int(_) -> TInt
+    | Bool(_) -> TBool
+    | EString(_) -> TString
+    | _ -> raise TypeMismatch
 
 let rec flatten_list (accum:'b -> 'a -> 'b) (l:'a list) (i:'b) =
   match l with
@@ -146,15 +160,21 @@ let rec flatten_list (accum:'b -> 'a -> 'b) (l:'a list) (i:'b) =
 let rec map_list_expr el s =
   match el with
   | [] -> []
-  | e::new_el -> let ce, new_s = eval_expr s e in
-    ce::map_list_expr new_el new_s
+  | e :: new_el -> let ce, new_s = eval_expr s e in
+    ce :: map_list_expr new_el new_s
 
 let rec eval_statement (state:PrgmSt.t) (sm:statement) = 
   match sm with
 
-  | Assign(v, e) -> 
+  | Assign(Ident(s), v, e) ->
+    let t =
+    (match s with
+    | "int" -> TInt
+    | "bool" -> TBool
+    | "string" -> TString
+    | _ -> raise Unimplemented) in
     let new_e, new_state = eval_expr state e in
-    PrgmSt.add_var new_state v new_e
+    PrgmSt.add_var new_state v new_e t
   
   | Eval(e) ->
     let _, new_state = eval_expr state e in

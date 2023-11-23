@@ -11,15 +11,22 @@ module Ident =
         compare str1 str2
   end
 
+type e_type =
+| TInt
+| TBool
+| TString
+(* | Complex of e_type list *)
+
 (* Expressions *)
 type expr =
-(* basic types *)
 | Int of int
 | Bool of bool
 | EString of string
+
 | Systime
 
 | Var of Ident.t
+| TypedExpr of e_type * expr
 
 | PreIncr of expr
 | PostIncr of expr
@@ -46,7 +53,7 @@ type expr =
 
 (* Statements *)
 type statement =
-| Assign of Ident.t * expr
+| Assign of Ident.t * Ident.t * expr
 | Eval of expr
 
 | If of (expr * statement list) list

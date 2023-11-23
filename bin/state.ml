@@ -7,14 +7,14 @@ module IdentMap = Map.Make(Ident);;
 module StLvl =
   struct
     type t = 
-    | StLvl of (Ident.t, (Ident.t list * statement list)) Hashtbl.t * (Ident.t, expr) Hashtbl.t
-    let add_var s i v =
+    | StLvl of (Ident.t, (Ident.t list * statement list)) Hashtbl.t * (Ident.t, (e_type * expr)) Hashtbl.t
+    let add_var s i v t =
       match s with
-      | StLvl(fm, vm) -> Hashtbl.replace vm i v; StLvl (fm, vm)
-    let rec add_vars s (ivl:(Ident.t * expr) list) =
+      | StLvl(fm, vm) -> Hashtbl.replace vm i (t, v); StLvl (fm, vm)
+    let rec add_vars s (ivl:(Ident.t * expr * e_type) list) =
       match ivl with
       | [] -> s
-      | (i, v)::ivl2 -> add_vars (add_var s i v) ivl2
+      | (i, v, t)::ivl2 -> add_vars (add_var s i v t) ivl2
     let add_func s i f =
       match s with
       | StLvl(fm, vm) -> Hashtbl.replace fm i f; StLvl (fm, vm)
@@ -40,7 +40,7 @@ module PrgmSt =
       (match sl with
       | [] -> raise Invalid_state
       | _::new_sl -> PrgmSt new_sl)
-    let rec try_replace_var p i v =
+    let rec try_replace_var p i v t =
       match p with
       | PrgmSt(sl) ->
         (match sl with
@@ -48,16 +48,16 @@ module PrgmSt =
         | s::new_sl -> 
           (match StLvl.find_var_opt s i with
           | None -> 
-            let sl_result = try_replace_var (PrgmSt (new_sl)) i v in
+            let sl_result = try_replace_var (PrgmSt (new_sl)) i v t in
             (match sl_result with
             | Error(e) -> Error(e)
             | Ok(PrgmSt(found_sl)) -> Ok(PrgmSt(s::found_sl)))
 
           | Some(_) -> 
-            let mod_s = StLvl.add_var s i v in
+            let mod_s = StLvl.add_var s i v t in
             Ok(PrgmSt(mod_s::new_sl))))
-    let add_var p i v =
-      match try_replace_var p i v with
+    let add_var p i v t =
+      match try_replace_var p i v t with
       | Ok(new_p) -> new_p
       | Error(_) ->
         (match p with
@@ -65,9 +65,9 @@ module PrgmSt =
           (match sl with
           | [] -> raise Invalid_state
           | s::new_sl ->
-            let new_s = StLvl.add_var s i v in
+            let new_s = StLvl.add_var s i v t in
             PrgmSt (new_s::new_sl)))
-    let add_vars p (ivl:(Ident.t * expr) list) =
+    let add_vars p (ivl:(Ident.t * expr * e_type) list) =
       match p with
       | PrgmSt(sl) ->
         (match sl with
