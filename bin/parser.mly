@@ -23,6 +23,8 @@
 %token PLUS MINUS
 %token TIMES DIV MODULO
 
+%token INCREMENT
+
 (* Boolean opperators *)
 %token AND OR NOT BOOL_EQUALS
 %token GREATER LESS
@@ -50,6 +52,7 @@
 %left PLUS MINUS
 %left TIMES DIV MODULO
 %right NOT
+%nonassoc INCREMENT
 
 
 (* actual parsing *)
@@ -90,6 +93,9 @@ incomplete_statement: (* basically any one line statement *)
 | ident ASSIGN_EQUALS expression
   { Assign ($1, $3) }
 
+| incr
+  { Eval $1 }
+
 | ident LPAREN separated_list(COMMA, expression) RPAREN
   { FuncCall($1, $3) }
 
@@ -122,6 +128,13 @@ ident:
   { Ident $1 }
 ;
 
+incr:
+| INCREMENT expression
+  { PreIncr $2 }
+
+| expression INCREMENT
+  { PostIncr $1 }
+;
 
 expression:
 (* litterals *)
@@ -142,6 +155,9 @@ expression:
 
 | ident
   { Var $1 }
+
+| incr
+  { $1 }
 
 (* mathematical expressions *)
 | expression PLUS expression (* { $1 + $3 } *)
