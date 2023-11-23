@@ -167,8 +167,9 @@ let rec eval_statement (state:PrgmSt.t) (sm:statement) =
     | _ -> raise TypeMismatch)
 
   | For(is, e, ls, sml) ->
-    let new_state = eval_statement state is in
-    eval_statement new_state (While(e, sml @ [ls]))
+    let pushed_state = PrgmSt.push_stack state in
+    let new_state = eval_statement pushed_state is in
+    eval_statement new_state (While(e, sml @ [ls])) |> PrgmSt.pop_stack
 
   | Print(e) -> 
     let new_e, new_state = eval_expr state e in
