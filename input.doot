@@ -1,37 +1,17 @@
-foo = "before_func";
-
-fn foo_func(foo) {
-    println foo;
-}
-
-print "Printing foo: ";
+string foo = "before_func";
 println foo;
 
-println "Calling foo_func:";
-foo_func("inside function");
+bool b1 = true;
+bool b2 = false;
+int i1 = 1;
+int i2 = 2;
 
-print "Printing foo: ";
-println foo;
+bool test = b1 || b2 && (i1 == i2);
 
-for (i = 0; i < 10; i++) {
-    print "num: ";
-    println i;
-}
+int i3 = 10;
+bool b3 = true;
+int i4 = 46;
 
-fn printbruh() {
-    print "bruh: ";
-    println bruh;
-}
+int num = i3 + b3 * i4;
 
-bruh = 0;
-printbruh();
-++bruh;
-printbruh();
-bruh++;
-printbruh();
-print "1 + 1 + ++bruh = ";
-println 1 + 1 + ++bruh;
-printbruh();
-print "1 + 1 + bruh++ = ";
-println 1 + 1 + bruh++;
-printbruh();
+println num;

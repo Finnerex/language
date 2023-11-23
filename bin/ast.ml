@@ -5,6 +5,7 @@ module Ident =
   struct
     type t =
     | Ident of string
+    [@@deriving show]
     let compare x y = 
       match (x, y) with
       | Ident str1, Ident str2 ->
@@ -15,6 +16,7 @@ type e_type =
 | TInt
 | TBool
 | TString
+[@@deriving show]
 (* | Complex of e_type list *)
 
 (* Expressions *)
@@ -50,6 +52,7 @@ type expr =
 | Modulo of expr * expr
 
 | Ternary of expr * expr * expr
+[@@deriving show]
 
 (* Statements *)
 type statement =
@@ -66,3 +69,4 @@ type statement =
 
 | Print of expr
 | PrintLn of expr
+[@@deriving show]

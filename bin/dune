@@ -1,7 +1,8 @@
 (executable
  (public_name language)
  (name main)
- (libraries language))
+ (libraries language)
+ (preprocess (pps ppx_deriving.show ppx_deriving.ord)))
 
 (ocamllex lexer)
 (menhir
