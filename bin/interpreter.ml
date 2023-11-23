@@ -40,6 +40,29 @@ let rec eval_expr (state:PrgmSt.t) (e:expr) =
     (match i1, i2 with
     | Int i1, Int i2 -> (Int(i1 / i2), state3)
     | _ -> raise TypeMismatch)
+  
+  | PreIncr(v) ->
+    (match v with
+    | Var(id) ->
+      let e, state2 = eval_expr state v in
+      (match e with
+      | Int i ->
+        let iv = Int (i + 1) in
+        let state3 = PrgmSt.add_var state2 id iv in
+        (iv, state3)
+      | _ -> raise TypeMismatch)
+    | _ -> raise TypeMismatch)
+  
+  | PostIncr(v) ->
+    (match v with
+    | Var(id) -> 
+      let e, state2 = eval_expr state v in
+      (match e with
+      | Int i ->
+        let state3 = PrgmSt.add_var state2 id (Int (i + 1)) in
+        (e, state3)
+      | _ -> raise TypeMismatch)
+    | _ -> raise TypeMismatch)
 
   | Modulo(e1, e2) ->
     let i1, state2 = eval_expr state e1 in
@@ -132,6 +155,10 @@ let rec eval_statement (state:PrgmSt.t) (sm:statement) =
   | Assign(v, e) -> 
     let new_e, new_state = eval_expr state e in
     PrgmSt.add_var new_state v new_e
+  
+  | Eval(e) ->
+    let _, new_state = eval_expr state e in
+    new_state
   
   | FuncDef(i, vl, sml) ->
     PrgmSt.add_func state i (vl, sml)

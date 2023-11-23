@@ -21,6 +21,9 @@ type expr =
 
 | Var of Ident.t
 
+| PreIncr of expr
+| PostIncr of expr
+
 (* boolean expressions *)
 | And of expr * expr
 | Or of expr * expr
@@ -44,6 +47,7 @@ type expr =
 (* Statements *)
 type statement =
 | Assign of Ident.t * expr
+| Eval of expr
 
 | If of (expr * statement list) list
 

@@ -22,6 +22,8 @@ rule token = parse
 | '/'        { DIV }
 | '%'        { MODULO }
 
+| "++"       { INCREMENT }
+
 | '('        { LPAREN }
 | ')'        { RPAREN }
 

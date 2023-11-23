@@ -12,3 +12,26 @@ foo_func("inside function");
 
 print "Printing foo: ";
 println foo;
+
+for (i = 0; i < 10; i++) {
+    print "num: ";
+    println i;
+}
+
+fn printbruh() {
+    print "bruh: ";
+    println bruh;
+}
+
+bruh = 0;
+printbruh();
+++bruh;
+printbruh();
+bruh++;
+printbruh();
+print "1 + 1 + ++bruh = ";
+println 1 + 1 + ++bruh;
+printbruh();
+print "1 + 1 + bruh++ = ";
+println 1 + 1 + bruh++;
+printbruh();
