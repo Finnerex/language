@@ -40,14 +40,33 @@ module PrgmSt =
       (match sl with
       | [] -> raise Invalid_state
       | _::new_sl -> PrgmSt new_sl)
-    let add_var p i v =
+    let rec try_replace_var p i v =
       match p with
       | PrgmSt(sl) ->
         (match sl with
-        | [] -> raise Invalid_state
-        | s::new_sl ->
-          let new_s = StLvl.add_var s i v in
-          PrgmSt (new_s::new_sl))
+        | [] -> Error(Not_found)
+        | s::new_sl -> 
+          (match StLvl.find_var_opt s i with
+          | None -> 
+            let sl_result = try_replace_var (PrgmSt (new_sl)) i v in
+            (match sl_result with
+            | Error(e) -> Error(e)
+            | Ok(PrgmSt(found_sl)) -> Ok(PrgmSt(s::found_sl)))
+
+          | Some(_) -> 
+            let mod_s = StLvl.add_var s i v in
+            Ok(PrgmSt(mod_s::new_sl))))
+    let add_var p i v =
+      match try_replace_var p i v with
+      | Ok(new_p) -> new_p
+      | Error(_) ->
+        (match p with
+        | PrgmSt(sl) ->
+          (match sl with
+          | [] -> raise Invalid_state
+          | s::new_sl ->
+            let new_s = StLvl.add_var s i v in
+            PrgmSt (new_s::new_sl)))
     let add_vars p (ivl:(Ident.t * expr) list) =
       match p with
       | PrgmSt(sl) ->
@@ -73,10 +92,12 @@ module PrgmSt =
           (match StLvl.find_var_opt s i with
           | Some(v) -> v
           | None -> find_var (PrgmSt new_sl) i))
+    
     let rec find_func p i =
       match p with
       | PrgmSt(sl) ->
-        (match sl with
+        (match 
+        sl with
         | [] -> raise Not_found
         | s::new_sl ->
           (match StLvl.find_func_opt s i with
