@@ -1,74 +1,14 @@
-println "hello lmao";
-a = 8;
-println a;
-a = 5;
-println a;
+foo = "before_func";
 
-bruhbruh = "yuer";
-println bruhbruh;
-
-sure = true;
-maybe = true;
-
-if (sure) {
-    println "yeah";
-}
-
-if (!sure) {
-    println "yep";
-} else if (maybe) 
-    println "mayhaps";
-
-// balls
-if (!sure) 
-    println "yeh";
-else if (!maybe) {
-    println "maybe";
-} else
-    println "nah";
-
-
-println 10;
-
-i = 0;
-
-while (!(i == 5)) {
-    i = i + 1;
-    _a15 = 3;
-    while (!(_a15 == 0)) {
-        print i;
-        print " ";
-        println _a15;
-        _a15 = _a15 - 1;
-    }
-}
-
-for (i = 0; i <= 7; i = i + 1) {
-    print "printing: ";
-    println i;
-}
-
-var1 = "hi";
-
-type bruh(var1, foo) {
-    println "lmao";
-    println var1;
+fn foo_func(foo) {
     println foo;
 }
 
-foo = 9 + 10;
+print "Printing foo: ";
+println foo;
 
-bruh("what's up dawg", foo);
+println "Calling foo_func:";
+foo_func("inside function");
 
-print "printing var1: ";
-println var1;
-
-// one lines
-
-/*
-    multiple lines
-*/
-
-println 32 % 3;
-
-/*cobment*/println "all done";
+print "Printing foo: ";
+println foo;
