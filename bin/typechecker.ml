@@ -74,5 +74,83 @@ let rec typecheck_expr (tchk:TypeChk.t) (e:expr) : (e_type, exn) result =
     | Error err, _ -> Error err
     | _, Error err -> Error err
     | _ -> Error Mismatch_type)
+  | GreaterEq (e1, e2) ->
+    let t1 = typecheck_expr tchk e1 in
+    let t2 = typecheck_expr tchk e2 in
+    (match t1, t2 with
+    | Ok TInt, Ok TInt -> Ok TBool
+    | Error err, _ -> Error err
+    | _, Error err -> Error err
+    | _ -> Error Mismatch_type)
+  | Less (e1, e2) ->
+    let t1 = typecheck_expr tchk e1 in
+    let t2 = typecheck_expr tchk e2 in
+    (match t1, t2 with
+    | Ok TInt, Ok TInt -> Ok TBool
+    | Error err, _ -> Error err
+    | _, Error err -> Error err
+    | _ -> Error Mismatch_type)
+  | LessEq (e1, e2) ->
+    let t1 = typecheck_expr tchk e1 in
+    let t2 = typecheck_expr tchk e2 in
+    (match t1, t2 with
+    | Ok TInt, Ok TInt -> Ok TBool
+    | Error err, _ -> Error err
+    | _, Error err -> Error err
+    | _ -> Error Mismatch_type)
   
-  | _ -> raise Unimplemented
+  | Plus (e1, e2) ->
+    let t1 = typecheck_expr tchk e1 in
+    let t2 = typecheck_expr tchk e2 in
+    (match t1, t2 with
+    | Ok TInt, Ok TInt -> Ok TInt
+    | Error err, _ -> Error err
+    | _, Error err -> Error err
+    | _ -> Error Mismatch_type)
+  | Minus (e1, e2) ->
+    let t1 = typecheck_expr tchk e1 in
+    let t2 = typecheck_expr tchk e2 in
+    (match t1, t2 with
+    | Ok TInt, Ok TInt -> Ok TInt
+    | Error err, _ -> Error err
+    | _, Error err -> Error err
+    | _ -> Error Mismatch_type)
+  | Times (e1, e2) ->
+    let t1 = typecheck_expr tchk e1 in
+    let t2 = typecheck_expr tchk e2 in
+    (match t1, t2 with
+    | Ok TInt, Ok TInt -> Ok TInt
+    | Error err, _ -> Error err
+    | _, Error err -> Error err
+    | _ -> Error Mismatch_type)
+  | Div (e1, e2) ->
+    let t1 = typecheck_expr tchk e1 in
+    let t2 = typecheck_expr tchk e2 in
+    (match t1, t2 with
+    | Ok TInt, Ok TInt -> Ok TInt
+    | Error err, _ -> Error err
+    | _, Error err -> Error err
+    | _ -> Error Mismatch_type)
+  | Modulo (e1, e2) ->
+    let t1 = typecheck_expr tchk e1 in
+    let t2 = typecheck_expr tchk e2 in
+    (match t1, t2 with
+    | Ok TInt, Ok TInt -> Ok TInt
+    | Error err, _ -> Error err
+    | _, Error err -> Error err
+    | _ -> Error Mismatch_type)
+  
+  | Ternary (e1, e2, e3) ->
+    let t1 = typecheck_expr tchk e1 in
+    let t2 = typecheck_expr tchk e2 in
+    let t3 = typecheck_expr tchk e3 in
+    (match t1, t2, t3 with
+    | Ok TBool, Ok t2, Ok t3 ->
+      if t2 = t3 then
+        Ok t2
+      else
+        Error Mismatch_type
+    | Error err, _,  _ -> Error err
+    | _, Error err, _ -> Error err
+    | _, _, Error err -> Error err
+    | _ -> Error Mismatch_type)
