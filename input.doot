@@ -11,6 +11,6 @@ bool test = b1 || b2 && (i1 == i2);
 int i3 = 10;
 int i4 = 46;
 
-int num = i3 * i4;
+bool num = i3 * i4;
 
 println num;

@@ -198,7 +198,10 @@ let rec eval_statement (state:PrgmSt.t) (sm:statement) =
     | "string" -> TString
     | _ -> raise Unimplemented) in
     let new_e, new_state = eval_expr state e in
+    let et = eval_type new_state new_e in
+    if t = et then
     PrgmSt.add_var new_state v new_e t
+    else (mismatch_type (show_e_type t) (show_e_type et))
   
   | Eval(e) ->
     let _, new_state = eval_expr state e in
