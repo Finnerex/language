@@ -16,6 +16,7 @@ type e_type =
 | TInt
 | TBool
 | TString
+| TUnit
 [@@deriving show]
 (* | Complex of e_type list *)
 
@@ -24,6 +25,7 @@ type expr =
 | Int of int
 | Bool of bool
 | EString of string
+| Unit
 
 | Systime
 

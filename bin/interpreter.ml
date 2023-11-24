@@ -17,6 +17,7 @@ let rec eval_expr (state:PrgmSt.t) (e:expr) =
   | Int(x) -> Int(x), state
   | Bool(x) -> Bool(x), state
   | EString(x) -> EString(x), state
+  | Unit -> Unit, state
 
   | Systime -> (Int (int_of_float (Sys.time () *. 1000.0)), state)
 
