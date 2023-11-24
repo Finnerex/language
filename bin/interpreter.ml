@@ -80,6 +80,7 @@ let rec eval_expr (state:PrgmSt.t) (e:expr) =
     let i2, state3 = eval_expr state2 e2 in
     (match i1, i2 with
     | Int i1, Int i2 -> (Int(i1 mod i2), state3)
+    | TypedExpr(_, te1), TypedExpr(_, te2) -> eval_expr state3 (Modulo (te1, te2))
     | _ -> mismatch_type "Ast.Int, Ast.Int" (show_expr i1 ^ ", " ^ show_expr i2))
   
   | Less(e1, e2) ->
@@ -87,6 +88,7 @@ let rec eval_expr (state:PrgmSt.t) (e:expr) =
     let i2, state3 = eval_expr state2 e2 in
     (match i1, i2 with
     | Int i1, Int i2 -> (Bool(i1 < i2), state3)
+    | TypedExpr(_, te1), TypedExpr(_, te2) -> eval_expr state3 (Less (te1, te2))
     | _ -> mismatch_type "Ast.Int, Ast.Int" (show_expr i1 ^ ", " ^ show_expr i2))
   
   | LessEq(e1, e2) ->
@@ -94,6 +96,7 @@ let rec eval_expr (state:PrgmSt.t) (e:expr) =
     let i2, state3 = eval_expr state2 e2 in
     (match i1, i2 with
     | Int i1, Int i2 -> (Bool(i1 <= i2), state3)
+    | TypedExpr(_, te1), TypedExpr(_, te2) -> eval_expr state3 (LessEq (te1, te2))
     | _ -> mismatch_type "Ast.Int, Ast.Int" (show_expr i1 ^ ", " ^ show_expr i2))
   
   | Greater(e1, e2) ->
@@ -101,6 +104,7 @@ let rec eval_expr (state:PrgmSt.t) (e:expr) =
     let i2, state3 = eval_expr state2 e2 in
     (match i1, i2 with
     | Int i1, Int i2 -> (Bool(i1 > i2), state3)
+    | TypedExpr(_, te1), TypedExpr(_, te2) -> eval_expr state3 (Greater (te1, te2))
     | _ -> mismatch_type "Ast.Int, Ast.Int" (show_expr i1 ^ ", " ^ show_expr i2))
   
   | GreaterEq(e1, e2) ->
@@ -108,12 +112,14 @@ let rec eval_expr (state:PrgmSt.t) (e:expr) =
     let i2, state3 = eval_expr state2 e2 in
     (match i1, i2 with
     | Int i1, Int i2 -> (Bool(i1 >= i2), state3)
+    | TypedExpr(_, te1), TypedExpr(_, te2) -> eval_expr state3 (GreaterEq (te1, te2))
     | _ -> mismatch_type "Ast.Int, Ast.Int" (show_expr i1 ^ ", " ^ show_expr i2))
 
   | Not(x) ->
     let new_x, new_state = eval_expr state x in
     (match new_x with
     | Bool b -> (Bool (not b), new_state)
+    | TypedExpr(_, te) -> eval_expr new_state (Not te)
     | _ -> mismatch_type "Ast.Bool" (show_expr new_x))
 
   | And(e1, e2) ->
@@ -121,6 +127,7 @@ let rec eval_expr (state:PrgmSt.t) (e:expr) =
     let b2, state3 = eval_expr state2 e2 in
     (match b1, b2 with
     | Bool b1, Bool b2 -> (Bool(b1 && b2), state3)
+    | TypedExpr(_, te1), TypedExpr(_, te2) -> eval_expr state3 (And (te1, te2))
     | _ -> mismatch_type "Ast.Bool, Ast.Bool" (show_expr b1 ^ ", " ^ show_expr b2))
 
   | Or(e1, e2) ->
@@ -128,6 +135,7 @@ let rec eval_expr (state:PrgmSt.t) (e:expr) =
     let b2, state3 = eval_expr state2 e2 in
     (match b1, b2 with
     | Bool b1, Bool b2 -> (Bool(b1 || b2), state3)
+    | TypedExpr(_, te1), TypedExpr(_, te2) -> eval_expr state3 (Or (te1, te2))
     | _ -> mismatch_type "Ast.Bool, Ast.Bool" (show_expr b1 ^ ", " ^ show_expr b2))
 
   | Equals(e1, e2) ->
@@ -136,6 +144,7 @@ let rec eval_expr (state:PrgmSt.t) (e:expr) =
     (match x1, x2 with
     | Int i1, Int i2 -> (Bool(i1 = i2), state3)
     | Bool b1, Bool b2 -> (Bool(b1 = b2), state3)
+    | TypedExpr(_, te1), TypedExpr(_, te2) -> eval_expr state3 (Equals (te1, te2))
     | _ -> mismatch_type "(Ast.Bool, Ast.Bool)|(Ast.Int, Ast.Int)" (show_expr x1 ^ ", " ^ show_expr x2))
 
   | Ternary(c, e1, e2) ->
@@ -143,6 +152,7 @@ let rec eval_expr (state:PrgmSt.t) (e:expr) =
     (match new_c with
     | Bool true -> eval_expr new_state e1
     | Bool false -> eval_expr new_state e2
+    | TypedExpr(_, te) -> eval_expr new_state (Ternary (te, e1, e2))
     | _ -> mismatch_type "Ast.Bool" (show_expr new_c))
 
   | Var(i) -> let t, e = PrgmSt.find_var state i in TypedExpr(t, e), state
@@ -151,14 +161,14 @@ let rec eval_expr (state:PrgmSt.t) (e:expr) =
   
   (* | _ -> raise Unimplemented *)
 
-  let eval_type (state:PrgmSt.t) (e:expr) =
-    let new_e, _ = eval_expr state e in
-    match new_e with
-    | TypedExpr(t, _) -> t
-    | Int(_) -> TInt
-    | Bool(_) -> TBool
-    | EString(_) -> TString
-    | _ -> raise (Invalid_argument "unknown type")
+let eval_type (state:PrgmSt.t) (e:expr) =
+  let new_e, _ = eval_expr state e in
+  match new_e with
+  | TypedExpr(t, _) -> t
+  | Int(_) -> TInt
+  | Bool(_) -> TBool
+  | EString(_) -> TString
+  | _ -> raise (Invalid_argument "unknown type")
 
 let rec flatten_list (accum:'b -> 'a -> 'b) (l:'a list) (i:'b) =
   match l with

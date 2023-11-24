@@ -9,9 +9,8 @@ int i2 = 2;
 bool test = b1 || b2 && (i1 == i2);
 
 int i3 = 10;
-bool b3 = true;
 int i4 = 46;
 
-int num = i3 + b3 * i4;
+int num = i3 * i4;
 
 println num;
