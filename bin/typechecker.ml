@@ -1,7 +1,7 @@
 open Ast
 
 exception Unimplemented
-exception Mismatch_type of string
+exception Mismatch_type
 
 module TypeChk = struct
   type t =
@@ -32,9 +32,9 @@ let rec typecheck_expr (tchk:TypeChk.t) (e:expr) : (e_type, exn) result =
   | Systime -> Ok TInt
 
   | PreIncr e ->
-    Result.bind (typecheck_expr tchk e) (fun t -> if t = TInt then Ok TInt else Error Invalid_type)
+    Result.bind (typecheck_expr tchk e) (fun t -> if t = TInt then Ok TInt else Error Mismatch_type)
   | PostIncr e ->
-    Result.bind (typecheck_expr tchk e) (fun t -> if t = TInt then Ok TInt else Error Invalid_type)
+    Result.bind (typecheck_expr tchk e) (fun t -> if t = TInt then Ok TInt else Error Mismatch_type)
   
   | And (e1, e2) ->
     let t1 = typecheck_expr tchk e1 in
@@ -43,7 +43,7 @@ let rec typecheck_expr (tchk:TypeChk.t) (e:expr) : (e_type, exn) result =
     | Ok TBool, Ok TBool -> Ok TBool
     | Error err, _ -> Error err
     | _, Error err -> Error err
-    | _ -> Error Invalid_type)
+    | _ -> Error Mismatch_type)
   | Or (e1, e2) ->
     let t1 = typecheck_expr tchk e1 in
     let t2 = typecheck_expr tchk e2 in
@@ -51,7 +51,7 @@ let rec typecheck_expr (tchk:TypeChk.t) (e:expr) : (e_type, exn) result =
     | Ok TBool, Ok TBool -> Ok TBool
     | Error err, _ -> Error err
     | _, Error err -> Error err
-    | _ -> Error Invalid_type)
+    | _ -> Error Mismatch_type)
   | Equals (e1, e2) ->
     let t1 = typecheck_expr tchk e1 in
     let t2 = typecheck_expr tchk e2 in
@@ -59,11 +59,11 @@ let rec typecheck_expr (tchk:TypeChk.t) (e:expr) : (e_type, exn) result =
     | Ok _, Ok _ -> Ok TBool
     | Error err, _ -> Error err
     | _, Error err -> Error err
-    (*| _ -> Error Invalid_type *))
+    (*| _ -> Error Mismatch_type *))
   | Not e ->
     (match typecheck_expr tchk e with
     | Ok TBool -> Ok TBool
-    | Ok _ -> Error Invalid_type
+    | Ok _ -> Error Mismatch_type
     | Error err -> Error err)
   
   | Greater (e1, e2) ->
@@ -73,6 +73,6 @@ let rec typecheck_expr (tchk:TypeChk.t) (e:expr) : (e_type, exn) result =
     | Ok TInt, Ok TInt -> Ok TBool
     | Error err, _ -> Error err
     | _, Error err -> Error err
-    | _ -> Error Invalid_type)
+    | _ -> Error Mismatch_type)
   
   | _ -> raise Unimplemented
