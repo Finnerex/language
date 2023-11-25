@@ -86,7 +86,7 @@ statement:
   { For ($3, $5, $7, $10) }
 
 | ident ident LPAREN separated_list(COMMA, ident) RPAREN LCURLY list(statement) RCURLY
-  { FuncDef ($2, $4, $7) }
+  { FuncDef ($1, $2, $4, $7) }
 
 ;
 
@@ -97,8 +97,8 @@ incomplete_statement: (* basically any one line statement *)
 | incr
   { Eval $1 }
 
-| ident LPAREN separated_list(COMMA, expression) RPAREN
-  { FuncCall($1, $3) }
+| func_call
+  { Eval $1 }
 
 | PRINT expression
   { Print $2 } 
@@ -137,6 +137,10 @@ incr:
   { PostIncr $1 }
 ;
 
+func_call:
+| ident LPAREN separated_list(COMMA, expression) RPAREN
+  { FuncCall($1, $3) }
+
 expression:
 (* litterals *)
 | INT_LIT
@@ -158,6 +162,9 @@ expression:
   { Var $1 }
 
 | incr
+  { $1 }
+
+| func_call
   { $1 }
 
 (* mathematical expressions *)

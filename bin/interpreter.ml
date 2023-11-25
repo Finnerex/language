@@ -12,6 +12,17 @@ exception Unimplemented
 let mismatch_type e f : 'a =
   raise (Type_mismatch ("Found [" ^ f ^ "], expected [" ^ e ^ "]"))
 
+let rec flatten_list (accum:'b -> 'a -> 'b) (l:'a list) (i:'b) =
+  match l with
+  | [] -> i
+  | sm :: l2 -> accum i sm |> flatten_list accum l2
+
+let rec combine3 sa sb sc =
+  match sa, sb, sc with
+  | [], [], [] -> []
+  | a::sa, b::sb, c::sc -> (a, b, c)::(combine3 sa sb sc)
+  | _ -> raise (Invalid_argument "different lengths")
+
 let rec eval_expr (state:PrgmSt.t) (e:expr) =
   match e with
   | Int(x) -> Int(x), state
@@ -160,35 +171,9 @@ let rec eval_expr (state:PrgmSt.t) (e:expr) =
 
   | TypedExpr(t, e) -> TypedExpr(t, e), state
   
-  (* | _ -> raise Unimplemented *)
+  | _ -> raise Unimplemented
 
-let eval_type (state:PrgmSt.t) (e:expr) =
-  let new_e, _ = eval_expr state e in
-  match new_e with
-  | TypedExpr(t, _) -> t
-  | Int(_) -> TInt
-  | Bool(_) -> TBool
-  | EString(_) -> TString
-  | _ -> raise (Invalid_argument "unknown type")
-
-let rec flatten_list (accum:'b -> 'a -> 'b) (l:'a list) (i:'b) =
-  match l with
-  | [] -> i
-  | sm :: l2 -> accum i sm |> flatten_list accum l2
-
-let rec map_list_expr el s =
-  match el with
-  | [] -> []
-  | e :: new_el -> let ce, new_s = eval_expr s e in
-    ce :: map_list_expr new_el new_s
-
-let rec combine3 sa sb sc =
-  match sa, sb, sc with
-  | [], [], [] -> []
-  | a::sa, b::sb, c::sc -> (a, b, c)::(combine3 sa sb sc)
-  | _ -> raise (Invalid_argument "different lengths")
-
-let rec eval_statement (state:PrgmSt.t) (sm:statement) = 
+and eval_statement (state:PrgmSt.t) (sm:statement) = 
   match sm with
 
   | Assign(Ident(s), v, e) ->
@@ -208,14 +193,14 @@ let rec eval_statement (state:PrgmSt.t) (sm:statement) =
     let _, new_state = eval_expr state e in
     new_state
   
-  | FuncDef(i, vl, sml) ->
+  | FuncDef(_, i, vl, sml) ->
     PrgmSt.add_func state i (vl, sml)
   
-  | FuncCall(i, el) ->
+  (* | FuncCall(i, el) ->
     let (vl, sml) = PrgmSt.find_func state i in
     let pushed_state = PrgmSt.push_stack state in
     let new_state = combine3 vl (map_list_expr el pushed_state) (List.map (eval_type state) el) |> PrgmSt.add_vars pushed_state in
-    flatten_list eval_statement sml new_state |> PrgmSt.pop_stack
+    flatten_list eval_statement sml new_state |> PrgmSt.pop_stack *)
 
   | If(l) ->
     (match l with
@@ -264,6 +249,21 @@ let rec eval_statement (state:PrgmSt.t) (sm:statement) =
     state
   
   (* | _ -> raise Unimplemented *)
+
+and map_list_expr el s =
+  match el with
+  | [] -> []
+  | e :: new_el -> let ce, new_s = eval_expr s e in
+    ce :: map_list_expr new_el new_s
+
+and eval_type (state:PrgmSt.t) (e:expr) =
+  let new_e, _ = eval_expr state e in
+  match new_e with
+  | TypedExpr(t, _) -> t
+  | Int(_) -> TInt
+  | Bool(_) -> TBool
+  | EString(_) -> TString
+  | _ -> raise (Invalid_argument "unknown type")
 
 let eval_statements (sml:statement list) (state:PrgmSt.t) =
   flatten_list eval_statement sml state

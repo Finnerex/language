@@ -17,6 +17,7 @@ type e_type =
 | TBool
 | TString
 | TUnit
+| TFunc of e_type * e_type list
 [@@deriving show]
 (* | Complex of e_type list *)
 
@@ -31,6 +32,8 @@ type expr =
 
 | Var of Ident.t
 | TypedExpr of e_type * expr
+
+| FuncCall of Ident.t * expr list
 
 | PreIncr of expr
 | PostIncr of expr
@@ -66,8 +69,7 @@ type statement =
 | While of expr * statement list
 | For of statement * expr * statement * statement list
 
-| FuncDef of Ident.t * Ident.t list * statement list
-| FuncCall of Ident.t * expr list
+| FuncDef of Ident.t * Ident.t * Ident.t list * statement list
 
 | Print of expr
 | PrintLn of expr
