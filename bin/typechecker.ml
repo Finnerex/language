@@ -40,6 +40,8 @@ let rec typecheck_expr (tchk:TypeChk.t) (e:expr) : (e_type, exn) result =
   | Var i -> Ok (TypeChk.gamma i tchk)
   | Systime -> Ok TInt
 
+  | FuncCall (i, _) -> Ok (TypeChk.gamma i tchk)
+
   | PreIncr e ->
     Result.bind (typecheck_expr tchk e) (fun t -> if t = TInt then Ok TInt else Error Type_mismatch)
   | PostIncr e ->
@@ -172,6 +174,9 @@ let rec check_all f tchk l : (TypeChk.t, exn) result =
     | Ok tchk -> check_all f tchk l
     | Error err -> Error err)
 
+let create_function_type_object rts =
+  type_of_string rts |> Result.map (fun t -> TFunc (t, [TUnit]))
+
 let rec typecheck_statement (s:statement) (tchk:TypeChk.t) : (TypeChk.t, exn) result =
   match s with
   | Assign (Ident vts, ni, e) ->
@@ -207,5 +212,8 @@ let rec typecheck_statement (s:statement) (tchk:TypeChk.t) : (TypeChk.t, exn) re
     | Ok _, Ok tchk -> Ok tchk
     | Error err, _ -> Error err
     | _, Error err -> Error err)
+  | FuncDef(Ident rts, ni, _, _) ->
+    let rt = create_function_type_object rts in
+    Result.map (fun t -> TypeChk.add ni t tchk) rt
   
   | _ -> raise Unimplemented

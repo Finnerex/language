@@ -32,6 +32,12 @@ let rec eval_expr (state:PrgmSt.t) (e:expr) =
 
   | Systime -> (Int (int_of_float (Sys.time () *. 1000.0)), state)
 
+  | FuncCall(i, el) ->
+    let (vl, sml) = PrgmSt.find_func state i in
+    let pushed_state = PrgmSt.push_stack state in
+    let new_state = combine3 vl (map_list_expr el pushed_state) (List.map (eval_type state) el) |> PrgmSt.add_vars pushed_state in
+    flatten_list eval_statement sml new_state |> PrgmSt.pop_stack |> fun s -> Unit, s
+
   | Plus(e1, e2) ->
     let i1, state2 = eval_expr state e1 in
     let i2, state3 = eval_expr state2 e2 in
@@ -171,7 +177,7 @@ let rec eval_expr (state:PrgmSt.t) (e:expr) =
 
   | TypedExpr(t, e) -> TypedExpr(t, e), state
   
-  | _ -> raise Unimplemented
+  (* | _ -> raise Unimplemented *)
 
 and eval_statement (state:PrgmSt.t) (sm:statement) = 
   match sm with
@@ -195,12 +201,6 @@ and eval_statement (state:PrgmSt.t) (sm:statement) =
   
   | FuncDef(_, i, vl, sml) ->
     PrgmSt.add_func state i (vl, sml)
-  
-  (* | FuncCall(i, el) ->
-    let (vl, sml) = PrgmSt.find_func state i in
-    let pushed_state = PrgmSt.push_stack state in
-    let new_state = combine3 vl (map_list_expr el pushed_state) (List.map (eval_type state) el) |> PrgmSt.add_vars pushed_state in
-    flatten_list eval_statement sml new_state |> PrgmSt.pop_stack *)
 
   | If(l) ->
     (match l with
@@ -263,7 +263,8 @@ and eval_type (state:PrgmSt.t) (e:expr) =
   | Int(_) -> TInt
   | Bool(_) -> TBool
   | EString(_) -> TString
-  | _ -> raise (Invalid_argument "unknown type")
+  | Unit -> TUnit
+  | _ -> raise (Invalid_argument ("Unable to evaluate type of " ^ show_expr new_e))
 
 let eval_statements (sml:statement list) (state:PrgmSt.t) =
   flatten_list eval_statement sml state

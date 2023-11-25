@@ -14,3 +14,9 @@ int i4 = 46;
 int num = i3 * i4;
 
 println num;
+
+void func(foo) {
+    println foo;
+}
+
+int bar = func(17);
