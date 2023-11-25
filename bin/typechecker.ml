@@ -9,10 +9,10 @@ module TypeChk = struct
   | TypeChk of (Ident.t * e_type) list
   let add i t tchk = 
     match tchk with
-    | TypeChk(its) -> TypeChk((i, t)::its)
+    | TypeChk its -> TypeChk ((i, t)::its)
   let rec gamma i tchk =
     match tchk with
-    | TypeChk(its) ->
+    | TypeChk its ->
       (match its with
       | [] -> raise Not_found
       | it::its ->
@@ -21,6 +21,7 @@ module TypeChk = struct
           ft
         else
           gamma i (TypeChk its))
+  let empty () = TypeChk []
 end
 
 let type_of_string s =
@@ -28,6 +29,7 @@ let type_of_string s =
   | "int" -> Ok TInt
   | "bool" -> Ok TBool
   | "string" -> Ok TString
+  | "void" -> Ok TUnit
   | _ -> Error (Unknown_type s)
 
 let rec typecheck_expr (tchk:TypeChk.t) (e:expr) : (e_type, exn) result =
@@ -166,18 +168,38 @@ let rec typecheck_expr (tchk:TypeChk.t) (e:expr) : (e_type, exn) result =
     | _, _, Error err -> Error err
     | _ -> Error Type_mismatch)
 
-let rec check_all f tchk l : (TypeChk.t, exn) result =
-  match l with
-  | [] -> Ok tchk
-  | t :: l ->
-    (match f t tchk with
-    | Ok tchk -> check_all f tchk l
+and check_exprs tchk el =
+  match el with
+  | [] -> Ok []
+  | e :: next_el -> 
+    let tr = typecheck_expr tchk e in
+    (match tr with
+    | Ok t -> check_exprs tchk next_el |> Result.map (fun tl -> t :: tl)
     | Error err -> Error err)
 
-let create_function_type_object rts =
-  type_of_string rts |> Result.map (fun t -> TFunc (t, [TUnit]))
+let rec resolve_type_results = function
+  | [] -> Ok []
+  | Ok r :: rts ->
+    resolve_type_results rts
+    |> Result.map (fun ts -> r :: ts)
+  | Error err :: _ -> Error err
 
-let rec typecheck_statement (s:statement) (tchk:TypeChk.t) : (TypeChk.t, exn) result =
+let string_of_ident (ti:Ident.t) =
+  match ti with
+  | Ident ts -> ts
+
+let create_function_type_object rts pl =
+  let til, _ = List.split pl in
+  let tlr =
+    List.map string_of_ident til
+    |> List.map type_of_string in
+  match resolve_type_results tlr with
+  | Ok tl ->
+    type_of_string rts
+    |> Result.map (fun t -> TFunc (t, tl))
+  | Error err -> Error err
+
+let rec typecheck_statement (s:statement) (tchk:TypeChk.t) (rt) : (TypeChk.t, exn) result =
   match s with
   | Assign (Ident vts, ni, e) ->
     let vtr = type_of_string vts in
@@ -198,22 +220,49 @@ let rec typecheck_statement (s:statement) (tchk:TypeChk.t) : (TypeChk.t, exn) re
     (match l with
     | [] -> Ok tchk
     | (e, sl) :: l ->
-      (match typecheck_expr tchk e, check_all typecheck_statement tchk sl with
-      | Ok TBool, Ok tchk -> typecheck_statement (If l) tchk
+      (match typecheck_expr tchk e, check_statements tchk sl rt with
+      | Ok TBool, Ok tchk -> typecheck_statement (If l) tchk rt
       | Ok TBool, Error err -> Error err
       | Ok _, _ -> Error Type_mismatch
       | Error err, _ -> Error err))
-  | While (e, sl) -> typecheck_statement (If [e, sl]) tchk
+  | While (e, sl) -> typecheck_statement (If [e, sl]) tchk rt
   | For (a, e, is, sl) ->
-    let chk_a = typecheck_statement a tchk in
+    let chk_a = typecheck_statement a tchk rt in
     let new_tchk = Result.value chk_a ~default:tchk in
-    let chk_w = typecheck_statement (While (e, sl @ [is])) new_tchk in
+    let chk_w = typecheck_statement (While (e, sl @ [is])) new_tchk rt in
     (match chk_a, chk_w with
     | Ok _, Ok tchk -> Ok tchk
     | Error err, _ -> Error err
     | _, Error err -> Error err)
-  | FuncDef(Ident rts, ni, _, _) ->
-    let rt = create_function_type_object rts in
-    Result.map (fun t -> TypeChk.add ni t tchk) rt
+  | FuncDef(Ident rts, ni, pl, sl) ->
+    let ft = create_function_type_object rts pl in
+    (match ft with
+    | Ok TFunc (rt, _) ->
+      check_statements tchk sl rt
+      |> Result.map (fun tchk -> TypeChk.add ni rt tchk)
+    | Error err -> Error err
+    | Ok _ -> failwith "create_function_type_object didn't return TFunc")
+  | Return e ->
+    (match typecheck_expr tchk e with
+    | Ok t ->
+      if t = rt then
+        Ok tchk
+      else
+        Error Type_mismatch
+    | Error err -> Error err)
   
-  | _ -> raise Unimplemented
+  | PrintLn e -> typecheck_statement (Print e) tchk rt
+  | Print e ->
+    (match typecheck_expr tchk e with
+    | Ok _ -> Ok tchk
+    | Error err -> Error err)
+  
+  (* | _ -> failwith ("Unimplemented: " ^ show_statement s) *)
+
+and check_statements tchk l rt : (TypeChk.t, exn) result =
+  match l with
+  | [] -> Ok tchk
+  | t :: l ->
+    (match typecheck_statement t tchk rt with
+    | Ok tchk -> check_statements tchk l rt
+    | Error err -> Error err)

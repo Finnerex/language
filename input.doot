@@ -15,12 +15,13 @@ int num = i3 * i4;
 
 println num;
 
-void func(int foo) {
+int func(int foo) {
     println foo;
     return 3;
     println "3 million";
 }
 
 int bar = func(17);
+// int bar = 5;
 print "bar = ";
 println bar;

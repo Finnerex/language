@@ -1,7 +1,5 @@
 open Lexing
 
-let () = Printf.printf "Intepreting %s:\n" Sys.argv.(1)
-
 (*type token =
 | Symbol of string
 | Word of string
@@ -28,7 +26,15 @@ let () =
     (*let f elem =
       Interpreter.eval_statement (elem)
     in List.iter f (Parser.program Lexer.token lexbuf)*)
-    let _ = Interpreter.eval_statements (Parser.program Lexer.token lexbuf) State.PrgmSt.empty in ()
+    Printf.printf "Parsing %s:\n" Sys.argv.(1);
+    let statements = Parser.program Lexer.token lexbuf in
+    Printf.printf "Typechecking %s:\n" Sys.argv.(1);
+    let _ = match Typechecker.check_statements (Typechecker.TypeChk.empty ()) statements Ast.TUnit with
+    | Ok _ -> 
+      Printf.printf "Interpreting %s:\n" Sys.argv.(1);
+      Interpreter.eval_statements statements State.PrgmSt.empty
+    | Error err -> raise err
+    in ()
 
   with
   | Parser.Error ->
