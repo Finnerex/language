@@ -177,5 +177,9 @@ let rec typecheck_statement (s:statement) (tchk:TypeChk.t) : (TypeChk.t, exn) re
         Error Type_mismatch
     | Error err, _ -> Error err
     | _, Error err -> Error err)
+  | Eval e ->
+    (match typecheck_expr tchk e with
+    | Ok _ -> Ok tchk
+    | Error err -> Error err)
   
   | _ -> raise Unimplemented
