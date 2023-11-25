@@ -15,7 +15,7 @@ int num = i3 * i4;
 
 println num;
 
-void func(foo) {
+void func(int foo) {
     println foo;
     return 3;
     println "3 million";

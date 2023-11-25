@@ -200,7 +200,8 @@ and eval_statement (state:PrgmSt.t) (sm:statement) =
     let _, new_state = eval_expr state e in
     new_state
   
-  | FuncDef(_, i, vl, sml) ->
+  | FuncDef(_, i, pl, sml) ->
+    let _, vl = List.split pl in
     PrgmSt.add_func state i (vl, sml)
 
   | If(l) ->

@@ -93,7 +93,7 @@ statement:
 | FOR LPAREN incomplete_statement ENDLINE expression ENDLINE incomplete_statement RPAREN LCURLY list(statement) RCURLY
   { For ($3, $5, $7, $10) }
 
-| ident ident LPAREN separated_list(COMMA, ident) RPAREN LCURLY list(statement) RCURLY
+| ident ident LPAREN separated_list(COMMA, param_def) RPAREN LCURLY list(statement) RCURLY
   { FuncDef ($1, $2, $4, $7) }
 
 ;
@@ -130,6 +130,10 @@ elseif:
 | ELSE incomplete_statement ENDLINE
   { ((Bool true), [$2]) }
 ;
+
+param_def:
+| ident ident
+  { ($1, $2) }
 
 
 ident:
