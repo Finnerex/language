@@ -164,6 +164,14 @@ let rec typecheck_expr (tchk:TypeChk.t) (e:expr) : (e_type, exn) result =
     | _, _, Error err -> Error err
     | _ -> Error Type_mismatch)
 
+let rec check_all f tchk l : (TypeChk.t, exn) result =
+  match l with
+  | [] -> Ok tchk
+  | t :: l ->
+    (match f t tchk with
+    | Ok tchk -> check_all f tchk l
+    | Error err -> Error err)
+
 let rec typecheck_statement (s:statement) (tchk:TypeChk.t) : (TypeChk.t, exn) result =
   match s with
   | Assign (Ident vts, ni, e) ->
@@ -181,5 +189,14 @@ let rec typecheck_statement (s:statement) (tchk:TypeChk.t) : (TypeChk.t, exn) re
     (match typecheck_expr tchk e with
     | Ok _ -> Ok tchk
     | Error err -> Error err)
+  | If l ->
+    (match l with
+    | [] -> Ok tchk
+    | (e, sl) :: l ->
+      (match typecheck_expr tchk e, check_all typecheck_statement tchk sl with
+      | Ok TBool, Ok tchk -> typecheck_statement (If l) tchk
+      | Ok TBool, Error err -> Error err
+      | Ok _, _ -> Error Type_mismatch
+      | Error err, _ -> Error err))
   
   | _ -> raise Unimplemented
