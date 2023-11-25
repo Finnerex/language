@@ -70,6 +70,7 @@ type statement =
 | For of statement * expr * statement * statement list
 
 | FuncDef of Ident.t * Ident.t * Ident.t list * statement list
+| Return of expr
 
 | Print of expr
 | PrintLn of expr

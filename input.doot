@@ -17,6 +17,10 @@ println num;
 
 void func(foo) {
     println foo;
+    return 3;
+    println "3 million";
 }
 
 int bar = func(17);
+print "bar = ";
+println bar;

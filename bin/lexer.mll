@@ -53,6 +53,8 @@ rule token = parse
 
 | ','        { COMMA }
 
+| "return"   { RETURN }
+
 | "println"  { PRINTLN }
 | "print"    { PRINT }
 

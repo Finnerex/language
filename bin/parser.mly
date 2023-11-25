@@ -36,6 +36,8 @@
 %token IF ELSE
 %token WHILE FOR
 
+%token RETURN
+
 %token SYSTIME
 
 %token PRINT
@@ -72,6 +74,12 @@ program:
 statement:
 | incomplete_statement ENDLINE
   { $1 }
+
+| RETURN expression ENDLINE
+  { Return $2 }
+
+| RETURN ENDLINE
+  { Return Unit }
   
 | IF LPAREN expression RPAREN LCURLY list(statement) RCURLY list(elseif)
   { If (($3, $6) :: $8) }

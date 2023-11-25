@@ -36,7 +36,8 @@ let rec eval_expr (state:PrgmSt.t) (e:expr) =
     let (vl, sml) = PrgmSt.find_func state i in
     let pushed_state = PrgmSt.push_stack state in
     let new_state = combine3 vl (map_list_expr el pushed_state) (List.map (eval_type state) el) |> PrgmSt.add_vars pushed_state in
-    flatten_list eval_statement sml new_state |> PrgmSt.pop_stack |> fun s -> Unit, s
+    let ret, pc_state = eval_list_and_return sml new_state in
+    PrgmSt.pop_stack pc_state |> fun s -> ret, s
 
   | Plus(e1, e2) ->
     let i1, state2 = eval_expr state e1 in
@@ -248,7 +249,15 @@ and eval_statement (state:PrgmSt.t) (sm:statement) =
     Printf.printf "\n";
     state
   
-  (* | _ -> raise Unimplemented *)
+  | _ -> raise Unimplemented
+
+and eval_list_and_return (sl:statement list) (state:PrgmSt.t) : (expr * PrgmSt.t) =
+  match sl with
+  | [] -> Unit, state
+  | s::next_sl -> 
+    (match s with
+    | Return e -> e, state
+    | _ -> eval_statement state s |> eval_list_and_return next_sl)
 
 and map_list_expr el s =
   match el with
