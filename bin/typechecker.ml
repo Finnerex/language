@@ -1,7 +1,8 @@
 open Ast
 
 exception Unimplemented
-exception Mismatch_type
+exception Type_mismatch
+exception Unknown_type of string
 
 module TypeChk = struct
   type t =
@@ -22,6 +23,13 @@ module TypeChk = struct
           gamma i (TypeChk its))
 end
 
+let type_of_string s =
+  match s with
+  | "int" -> Ok TInt
+  | "bool" -> Ok TBool
+  | "string" -> Ok TString
+  | _ -> Error (Unknown_type s)
+
 let rec typecheck_expr (tchk:TypeChk.t) (e:expr) : (e_type, exn) result =
   match e with
   | Int _ -> Ok TInt
@@ -33,9 +41,9 @@ let rec typecheck_expr (tchk:TypeChk.t) (e:expr) : (e_type, exn) result =
   | Systime -> Ok TInt
 
   | PreIncr e ->
-    Result.bind (typecheck_expr tchk e) (fun t -> if t = TInt then Ok TInt else Error Mismatch_type)
+    Result.bind (typecheck_expr tchk e) (fun t -> if t = TInt then Ok TInt else Error Type_mismatch)
   | PostIncr e ->
-    Result.bind (typecheck_expr tchk e) (fun t -> if t = TInt then Ok TInt else Error Mismatch_type)
+    Result.bind (typecheck_expr tchk e) (fun t -> if t = TInt then Ok TInt else Error Type_mismatch)
   
   | And (e1, e2) ->
     let t1 = typecheck_expr tchk e1 in
@@ -44,7 +52,7 @@ let rec typecheck_expr (tchk:TypeChk.t) (e:expr) : (e_type, exn) result =
     | Ok TBool, Ok TBool -> Ok TBool
     | Error err, _ -> Error err
     | _, Error err -> Error err
-    | _ -> Error Mismatch_type)
+    | _ -> Error Type_mismatch)
   | Or (e1, e2) ->
     let t1 = typecheck_expr tchk e1 in
     let t2 = typecheck_expr tchk e2 in
@@ -52,7 +60,7 @@ let rec typecheck_expr (tchk:TypeChk.t) (e:expr) : (e_type, exn) result =
     | Ok TBool, Ok TBool -> Ok TBool
     | Error err, _ -> Error err
     | _, Error err -> Error err
-    | _ -> Error Mismatch_type)
+    | _ -> Error Type_mismatch)
   | Equals (e1, e2) ->
     let t1 = typecheck_expr tchk e1 in
     let t2 = typecheck_expr tchk e2 in
@@ -64,7 +72,7 @@ let rec typecheck_expr (tchk:TypeChk.t) (e:expr) : (e_type, exn) result =
   | Not e ->
     (match typecheck_expr tchk e with
     | Ok TBool -> Ok TBool
-    | Ok _ -> Error Mismatch_type
+    | Ok _ -> Error Type_mismatch
     | Error err -> Error err)
   
   | Greater (e1, e2) ->
@@ -74,7 +82,7 @@ let rec typecheck_expr (tchk:TypeChk.t) (e:expr) : (e_type, exn) result =
     | Ok TInt, Ok TInt -> Ok TBool
     | Error err, _ -> Error err
     | _, Error err -> Error err
-    | _ -> Error Mismatch_type)
+    | _ -> Error Type_mismatch)
   | GreaterEq (e1, e2) ->
     let t1 = typecheck_expr tchk e1 in
     let t2 = typecheck_expr tchk e2 in
@@ -82,7 +90,7 @@ let rec typecheck_expr (tchk:TypeChk.t) (e:expr) : (e_type, exn) result =
     | Ok TInt, Ok TInt -> Ok TBool
     | Error err, _ -> Error err
     | _, Error err -> Error err
-    | _ -> Error Mismatch_type)
+    | _ -> Error Type_mismatch)
   | Less (e1, e2) ->
     let t1 = typecheck_expr tchk e1 in
     let t2 = typecheck_expr tchk e2 in
@@ -90,7 +98,7 @@ let rec typecheck_expr (tchk:TypeChk.t) (e:expr) : (e_type, exn) result =
     | Ok TInt, Ok TInt -> Ok TBool
     | Error err, _ -> Error err
     | _, Error err -> Error err
-    | _ -> Error Mismatch_type)
+    | _ -> Error Type_mismatch)
   | LessEq (e1, e2) ->
     let t1 = typecheck_expr tchk e1 in
     let t2 = typecheck_expr tchk e2 in
@@ -98,7 +106,7 @@ let rec typecheck_expr (tchk:TypeChk.t) (e:expr) : (e_type, exn) result =
     | Ok TInt, Ok TInt -> Ok TBool
     | Error err, _ -> Error err
     | _, Error err -> Error err
-    | _ -> Error Mismatch_type)
+    | _ -> Error Type_mismatch)
   
   | Plus (e1, e2) ->
     let t1 = typecheck_expr tchk e1 in
@@ -107,7 +115,7 @@ let rec typecheck_expr (tchk:TypeChk.t) (e:expr) : (e_type, exn) result =
     | Ok TInt, Ok TInt -> Ok TInt
     | Error err, _ -> Error err
     | _, Error err -> Error err
-    | _ -> Error Mismatch_type)
+    | _ -> Error Type_mismatch)
   | Minus (e1, e2) ->
     let t1 = typecheck_expr tchk e1 in
     let t2 = typecheck_expr tchk e2 in
@@ -115,7 +123,7 @@ let rec typecheck_expr (tchk:TypeChk.t) (e:expr) : (e_type, exn) result =
     | Ok TInt, Ok TInt -> Ok TInt
     | Error err, _ -> Error err
     | _, Error err -> Error err
-    | _ -> Error Mismatch_type)
+    | _ -> Error Type_mismatch)
   | Times (e1, e2) ->
     let t1 = typecheck_expr tchk e1 in
     let t2 = typecheck_expr tchk e2 in
@@ -123,7 +131,7 @@ let rec typecheck_expr (tchk:TypeChk.t) (e:expr) : (e_type, exn) result =
     | Ok TInt, Ok TInt -> Ok TInt
     | Error err, _ -> Error err
     | _, Error err -> Error err
-    | _ -> Error Mismatch_type)
+    | _ -> Error Type_mismatch)
   | Div (e1, e2) ->
     let t1 = typecheck_expr tchk e1 in
     let t2 = typecheck_expr tchk e2 in
@@ -131,7 +139,7 @@ let rec typecheck_expr (tchk:TypeChk.t) (e:expr) : (e_type, exn) result =
     | Ok TInt, Ok TInt -> Ok TInt
     | Error err, _ -> Error err
     | _, Error err -> Error err
-    | _ -> Error Mismatch_type)
+    | _ -> Error Type_mismatch)
   | Modulo (e1, e2) ->
     let t1 = typecheck_expr tchk e1 in
     let t2 = typecheck_expr tchk e2 in
@@ -139,7 +147,7 @@ let rec typecheck_expr (tchk:TypeChk.t) (e:expr) : (e_type, exn) result =
     | Ok TInt, Ok TInt -> Ok TInt
     | Error err, _ -> Error err
     | _, Error err -> Error err
-    | _ -> Error Mismatch_type)
+    | _ -> Error Type_mismatch)
   
   | Ternary (e1, e2, e3) ->
     let t1 = typecheck_expr tchk e1 in
@@ -150,8 +158,24 @@ let rec typecheck_expr (tchk:TypeChk.t) (e:expr) : (e_type, exn) result =
       if t2 = t3 then
         Ok t2
       else
-        Error Mismatch_type
+        Error Type_mismatch
     | Error err, _,  _ -> Error err
     | _, Error err, _ -> Error err
     | _, _, Error err -> Error err
-    | _ -> Error Mismatch_type)
+    | _ -> Error Type_mismatch)
+
+let rec typecheck_statement (s:statement) (tchk:TypeChk.t) : (TypeChk.t, exn) result =
+  match s with
+  | Assign (Ident vts, ni, e) ->
+    let vtr = type_of_string vts in
+    let etr = typecheck_expr tchk e in
+    (match vtr, etr with
+    | Ok vt, Ok et ->
+      if vt = et then
+        Ok (TypeChk.add ni et tchk)
+      else
+        Error Type_mismatch
+    | Error err, _ -> Error err
+    | _, Error err -> Error err)
+  
+  | _ -> raise Unimplemented
