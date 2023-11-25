@@ -198,5 +198,14 @@ let rec typecheck_statement (s:statement) (tchk:TypeChk.t) : (TypeChk.t, exn) re
       | Ok TBool, Error err -> Error err
       | Ok _, _ -> Error Type_mismatch
       | Error err, _ -> Error err))
+  | While (e, sl) -> typecheck_statement (If [e, sl]) tchk
+  | For (a, e, is, sl) ->
+    let chk_a = typecheck_statement a tchk in
+    let new_tchk = Result.value chk_a ~default:tchk in
+    let chk_w = typecheck_statement (While (e, sl @ [is])) new_tchk in
+    (match chk_a, chk_w with
+    | Ok _, Ok tchk -> Ok tchk
+    | Error err, _ -> Error err
+    | _, Error err -> Error err)
   
   | _ -> raise Unimplemented
