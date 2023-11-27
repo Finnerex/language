@@ -1,27 +1,15 @@
-string foo = "before_func";
-println foo;
+string bruh_moment = "hiiii";
 
-bool b1 = true;
-bool b2 = false;
-int i1 = 1;
-int i2 = 2;
-
-bool test = b1 || b2 && (i1 == i2);
-
-int i3 = 10;
-int i4 = 46;
-
-int num = i3 * i4;
-
-println num;
-
-int func(int foo) {
-    println foo;
-    return 3;
-    println "3 million";
+int add(int first, int second) {
+    string bruh_moment = "sup";
+    return first + second;
 }
 
-int bar = func(17);
-// int bar = 5;
-print "bar = ";
-println bar;
+void main() {
+    string foo = "before_func";
+    println foo;
+    println bruh_moment;
+    println add(1, 2);
+    println 1 + 2;
+    println bruh_moment;
+}

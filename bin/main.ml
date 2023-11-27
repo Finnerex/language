@@ -32,7 +32,8 @@ let () =
     let _ = match Typechecker.check_statements (Typechecker.TypeChk.empty ()) statements Ast.TUnit with
     | Ok _ -> 
       Printf.printf "Interpreting %s:\n" Sys.argv.(1);
-      Interpreter.eval_statements statements State.PrgmSt.empty
+      let toplevel = Interpreter.eval_statements statements State.PrgmSt.empty in
+      Interpreter.eval_statement toplevel (Ast.Eval (Ast.FuncCall (Ident "main", [])))
     | Error err -> raise err
     in ()
 

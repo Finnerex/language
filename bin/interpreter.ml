@@ -233,7 +233,7 @@ and eval_statement (state:PrgmSt.t) (sm:statement) =
     let new_state = eval_statement pushed_state is in
     eval_statement new_state (While(e, sml @ [ls])) |> PrgmSt.pop_stack
 
-  | Print(e) -> 
+  | Print(e) ->
     let new_e, new_state = eval_expr state e in
     (match new_e with
     | TypedExpr(_, te) -> eval_statement new_state (Print te)
@@ -242,7 +242,7 @@ and eval_statement (state:PrgmSt.t) (sm:statement) =
       | Int x -> string_of_int x
       | Bool x -> string_of_bool x
       | EString x -> x
-      | _ -> show_expr new_e);
+      | _ -> "wtf: " ^ show_expr new_e);
       new_state)
 
   | PrintLn(e) ->
@@ -257,7 +257,7 @@ and eval_list_and_return (sl:statement list) (state:PrgmSt.t) : (expr * PrgmSt.t
   | [] -> Unit, state
   | s::next_sl -> 
     (match s with
-    | Return e -> e, state
+    | Return e -> eval_expr state e
     | _ -> eval_statement state s |> eval_list_and_return next_sl)
 
 and map_list_expr el s =

@@ -4,24 +4,36 @@ exception Unimplemented
 exception Type_mismatch
 exception Unknown_type of string
 
+module IdentMap = Map.Make(Ident)
+
 module TypeChk = struct
   type t =
-  | TypeChk of (Ident.t * e_type) list
+  | TypeChk of e_type IdentMap.t list
+  let push tchk =
+    match tchk with
+    | TypeChk its -> TypeChk (IdentMap.empty :: its)
+  let pop tchk =
+    match tchk with
+    | TypeChk (_ :: its) -> TypeChk (its)
+    | TypeChk [] -> failwith "Invalid TypeChk"
   let add i t tchk = 
     match tchk with
-    | TypeChk its -> TypeChk ((i, t)::its)
+    | TypeChk (itm :: its) -> TypeChk (IdentMap.add i t itm :: its)
+    | TypeChk [] -> failwith "Invalid TypeChk"
+  let rec add_all its tchk =
+    match its with
+    | (i, t) :: pits -> 
+      add_all pits tchk
+      |> add i t
+    | [] -> tchk
   let rec gamma i tchk =
     match tchk with
-    | TypeChk its ->
-      (match its with
-      | [] -> raise Not_found
-      | it::its ->
-        let fi, ft = it in
-        if fi = i then
-          ft
-        else
-          gamma i (TypeChk its))
-  let empty () = TypeChk []
+    | TypeChk (itm :: its) ->
+      (match IdentMap.find_opt i itm with
+      | None -> gamma i (TypeChk its)
+      | Some t -> t)
+    | TypeChk [] -> raise Not_found
+  let empty () = TypeChk [IdentMap.empty]
 end
 
 let type_of_string s =
@@ -188,8 +200,8 @@ let string_of_ident (ti:Ident.t) =
   match ti with
   | Ident ts -> ts
 
-let create_function_type_object rts pl =
-  let til, _ = List.split pl in
+let create_function_type_and_params rts pl =
+  let til, vil = List.split pl in
   let tlr =
     List.map string_of_ident til
     |> List.map type_of_string in
@@ -197,6 +209,7 @@ let create_function_type_object rts pl =
   | Ok tl ->
     type_of_string rts
     |> Result.map (fun t -> TFunc (t, tl))
+    |> Result.map (fun ft -> ft, List.combine vil tl)
   | Error err -> Error err
 
 let rec typecheck_statement (s:statement) (tchk:TypeChk.t) (rt) : (TypeChk.t, exn) result =
@@ -235,10 +248,12 @@ let rec typecheck_statement (s:statement) (tchk:TypeChk.t) (rt) : (TypeChk.t, ex
     | Error err, _ -> Error err
     | _, Error err -> Error err)
   | FuncDef(Ident rts, ni, pl, sl) ->
-    let ft = create_function_type_object rts pl in
+    let ptchk = TypeChk.push tchk in
+    let ft = create_function_type_and_params rts pl in
     (match ft with
-    | Ok TFunc (rt, _) ->
-      check_statements tchk sl rt
+    | Ok (TFunc (rt, _), pl) ->
+      check_statements (TypeChk.add_all pl ptchk) sl rt
+      |> Result.map (fun tchk -> TypeChk.pop tchk)
       |> Result.map (fun tchk -> TypeChk.add ni rt tchk)
     | Error err -> Error err
     | Ok _ -> failwith "create_function_type_object didn't return TFunc")

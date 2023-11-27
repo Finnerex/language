@@ -66,13 +66,18 @@
 %%
 
 program:
-| list(statement) EOF
+| list(toplevel_statement) EOF
   { $1 }
 ;
 
+toplevel_statement:
+| ident ident ASSIGN_EQUALS expression ENDLINE
+  { Assign ($1, $2, $4) }
+| ident ident LPAREN separated_list(COMMA, param_def) RPAREN LCURLY list(body_statement) RCURLY
+  { FuncDef ($1, $2, $4, $7) }
 
-statement:
-| incomplete_statement ENDLINE
+body_statement:
+| incomplete_body_statement ENDLINE
   { $1 }
 
 | RETURN expression ENDLINE
@@ -81,24 +86,21 @@ statement:
 | RETURN ENDLINE
   { Return Unit }
   
-| IF LPAREN expression RPAREN LCURLY list(statement) RCURLY list(elseif)
+| IF LPAREN expression RPAREN LCURLY list(body_statement) RCURLY list(elseif)
   { If (($3, $6) :: $8) }
 
-| IF LPAREN expression RPAREN incomplete_statement ENDLINE list(elseif) (* can only have one one-line statement *)
+| IF LPAREN expression RPAREN incomplete_body_statement ENDLINE list(elseif) (* can only have one one-line statement *)
   { If (($3, [$5]) :: $7) }
 
-| WHILE LPAREN expression RPAREN LCURLY list(statement) RCURLY
+| WHILE LPAREN expression RPAREN LCURLY list(body_statement) RCURLY
   { While ($3, $6) }
 
-| FOR LPAREN incomplete_statement ENDLINE expression ENDLINE incomplete_statement RPAREN LCURLY list(statement) RCURLY
+| FOR LPAREN incomplete_body_statement ENDLINE expression ENDLINE incomplete_body_statement RPAREN LCURLY list(body_statement) RCURLY
   { For ($3, $5, $7, $10) }
-
-| ident ident LPAREN separated_list(COMMA, param_def) RPAREN LCURLY list(statement) RCURLY
-  { FuncDef ($1, $2, $4, $7) }
 
 ;
 
-incomplete_statement: (* basically any one line statement *)
+incomplete_body_statement: (* basically any one line statement *)
 | ident ident ASSIGN_EQUALS expression
   { Assign ($1, $2, $4) }
 
@@ -117,24 +119,23 @@ incomplete_statement: (* basically any one line statement *)
 
 
 elseif:
-| ELSE IF LPAREN expression RPAREN LCURLY list(statement) RCURLY
+| ELSE IF LPAREN expression RPAREN LCURLY list(body_statement) RCURLY
   { ($4, $7) }
 
-| ELSE LCURLY list(statement) RCURLY
+| ELSE LCURLY list(body_statement) RCURLY
   { ((Bool true), $3) }
 
 (* one liner else ifs*)
-| ELSE IF LPAREN expression RPAREN incomplete_statement ENDLINE
+| ELSE IF LPAREN expression RPAREN incomplete_body_statement ENDLINE
   { ($4, [$6]) }
 
-| ELSE incomplete_statement ENDLINE
+| ELSE incomplete_body_statement ENDLINE
   { ((Bool true), [$2]) }
 ;
 
 param_def:
 | ident ident
   { ($1, $2) }
-
 
 ident:
 | IDENT
