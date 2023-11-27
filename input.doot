@@ -2,7 +2,7 @@ string bruh_moment = "hiiii";
 
 int add(int first, int second) {
     string bruh_moment = "sup";
-    return first + second;
+    return 1 + 2;
 }
 
 void main() {
@@ -10,6 +10,5 @@ void main() {
     println foo;
     println bruh_moment;
     println add(1, 2);
-    println 1 + 2;
     println bruh_moment;
 }

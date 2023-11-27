@@ -44,6 +44,12 @@ let type_of_string s =
   | "void" -> Ok TUnit
   | _ -> Error (Unknown_type s)
 
+type expr_list = ExprList of expr list
+[@@deriving show]
+
+type e_type_list = ETypeList of e_type list
+[@@deriving show]
+
 let rec typecheck_expr (tchk:TypeChk.t) (e:expr) : (e_type, exn) result =
   match e with
   | Int _ -> Ok TInt
@@ -54,7 +60,12 @@ let rec typecheck_expr (tchk:TypeChk.t) (e:expr) : (e_type, exn) result =
   | Var i -> Ok (TypeChk.gamma i tchk)
   | Systime -> Ok TInt
 
-  | FuncCall (i, _) -> Ok (TypeChk.gamma i tchk)
+  | FuncCall (i, pel) ->
+    (match TypeChk.gamma i tchk with
+    | TFunc (r, ptl) ->
+      check_pl tchk pel ptl
+      |> Result.map (fun _ -> r)
+    | _ -> Error Type_mismatch)
 
   | PreIncr e ->
     Result.bind (typecheck_expr tchk e) (fun t -> if t = TInt then Ok TInt else Error Type_mismatch)
@@ -189,6 +200,20 @@ and check_exprs tchk el =
     | Ok t -> check_exprs tchk next_el |> Result.map (fun tl -> t :: tl)
     | Error err -> Error err)
 
+and check_pl tchk pel ptl =
+  match pel, ptl with
+  | pe :: ppel, pt :: pptl -> 
+    (match check_pl tchk ppel pptl with
+    | Ok () ->
+      if typecheck_expr tchk pe = Ok pt then
+        Ok ()
+      else
+        Error Type_mismatch
+    | Error e -> Error e)
+  | [], [] -> Ok ()
+  | [], _ -> raise (Invalid_argument "list lengths don't match")
+  | _, [] -> raise (Invalid_argument "list lengths don't match")
+
 let rec resolve_type_results = function
   | [] -> Ok []
   | Ok r :: rts ->
@@ -251,10 +276,10 @@ let rec typecheck_statement (s:statement) (tchk:TypeChk.t) (rt) : (TypeChk.t, ex
     let ptchk = TypeChk.push tchk in
     let ft = create_function_type_and_params rts pl in
     (match ft with
-    | Ok (TFunc (rt, _), pl) ->
+    | Ok (TFunc (rt, ptl), pl) ->
       check_statements (TypeChk.add_all pl ptchk) sl rt
       |> Result.map (fun tchk -> TypeChk.pop tchk)
-      |> Result.map (fun tchk -> TypeChk.add ni rt tchk)
+      |> Result.map (fun tchk -> TypeChk.add ni (TFunc (rt, ptl)) tchk)
     | Error err -> Error err
     | Ok _ -> failwith "create_function_type_object didn't return TFunc")
   | Return e ->
