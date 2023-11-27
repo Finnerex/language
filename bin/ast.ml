@@ -1,16 +1,12 @@
 (* ass syntax tree *)
 
 (* Identifier *)
-module Ident =
-  struct
-    type t =
-    | Ident of string
-    [@@deriving show]
-    let compare x y = 
-      match (x, y) with
-      | Ident str1, Ident str2 ->
-        compare str1 str2
-  end
+module Ident = struct
+  type t = Ident of string [@@deriving show]
+
+  let compare x y =
+    match (x, y) with Ident str1, Ident str2 -> compare str1 str2
+end
 
 type e_type =
 | TInt
