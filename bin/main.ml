@@ -18,7 +18,7 @@ let () =
   let input_channel = 
     if Array.length(Sys.argv) > 1 then open_in Sys.argv.(1) else stdin in
     
-  let lexbuf = Lexing.from_channel input_channel in
+  let lexbuf = Lexing.from_channel ~with_positions:true input_channel in
   
   try
     (*let result = Interpreter.eval_expr (Parser.program Lexer.token lexbuf) in
@@ -41,4 +41,4 @@ let () =
   | Parser.Error ->
     let pos = lexbuf.lex_curr_p in
     Printf.printf "Syntax error at line %d, column %d\n"
-      pos.pos_lnum (pos.pos_cnum - pos.pos_bol + 1)
+      pos.pos_lnum (pos.pos_cnum - pos.pos_bol)
