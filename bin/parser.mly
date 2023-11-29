@@ -1,5 +1,11 @@
 %{
   open Ast
+  open Lexing
+
+  let convert_pos (p:Lexing.position) = { line_num = p.pos_lnum; char_num = p.pos_cnum - p.pos_bol; }
+  let mexpr expr (s, e) = { expr = expr; pos_start = convert_pos s; pos_end = convert_pos e }
+  let mstmt stmt (s, e) = { stmt = stmt; pos_start = convert_pos s; pos_end = convert_pos e }
+  let midnt ident (s, e) = { ident = ident; pos_start = convert_pos s; pos_end = convert_pos e }
 %}
 
 (* Litterals *)
@@ -61,7 +67,7 @@
 (* actual parsing *)
 
 %start program
-%type <Ast.statement list> program
+%type <Ast.stmt_info list> program
 
 %%
 
@@ -72,49 +78,49 @@ program:
 
 toplevel_statement:
 | ident ident ASSIGN_EQUALS expression ENDLINE
-  { Assign ($1, $2, $4) }
+  { mstmt (Assign ($1, $2, $4)) $loc }
 | ident ident LPAREN separated_list(COMMA, param_def) RPAREN LCURLY list(body_statement) RCURLY
-  { FuncDef ($1, $2, $4, $7) }
+  { mstmt (FuncDef ($1, $2, $4, $7)) $loc }
 
 body_statement:
 | incomplete_body_statement ENDLINE
   { $1 }
 
 | RETURN expression ENDLINE
-  { Return $2 }
+  { mstmt (Return $2) $loc }
 
 | RETURN ENDLINE
-  { Return Unit }
+  { mstmt (Return (mexpr Unit $loc($1))) $loc }
   
 | IF LPAREN expression RPAREN LCURLY list(body_statement) RCURLY list(elseif)
-  { If (($3, $6) :: $8) }
+  { mstmt (If (($3, $6) :: $8)) $loc }
 
 | IF LPAREN expression RPAREN incomplete_body_statement ENDLINE list(elseif) (* can only have one one-line statement *)
-  { If (($3, [$5]) :: $7) }
+  { mstmt (If (($3, [$5]) :: $7)) $loc }
 
 | WHILE LPAREN expression RPAREN LCURLY list(body_statement) RCURLY
-  { While ($3, $6) }
+  { mstmt (While ($3, $6)) $loc }
 
 | FOR LPAREN incomplete_body_statement ENDLINE expression ENDLINE incomplete_body_statement RPAREN LCURLY list(body_statement) RCURLY
-  { For ($3, $5, $7, $10) }
+  { mstmt (For ($3, $5, $7, $10)) $loc }
 
 ;
 
 incomplete_body_statement: (* basically any one line statement *)
 | ident ident ASSIGN_EQUALS expression
-  { Assign ($1, $2, $4) }
+  { mstmt (Assign ($1, $2, $4)) $loc }
 
 | incr
-  { Eval $1 }
+  { mstmt (Eval $1) $loc }
 
 | func_call
-  { Eval $1 }
+  { mstmt (Eval $1) $loc }
 
 | PRINT expression
-  { Print $2 } 
+  { mstmt (Print $2) $loc }
 
 | PRINTLN expression
-  { PrintLn $2 }
+  { mstmt (PrintLn $2) $loc }
 ;
 
 
@@ -123,14 +129,14 @@ elseif:
   { ($4, $7) }
 
 | ELSE LCURLY list(body_statement) RCURLY
-  { ((Bool true), $3) }
+  { ((mexpr (Bool true) $loc), $3) }
 
 (* one liner else ifs*)
 | ELSE IF LPAREN expression RPAREN incomplete_body_statement ENDLINE
   { ($4, [$6]) }
 
 | ELSE incomplete_body_statement ENDLINE
-  { ((Bool true), [$2]) }
+  { ((mexpr (Bool true) $loc), [$2]) }
 ;
 
 param_def:
@@ -139,40 +145,40 @@ param_def:
 
 ident:
 | IDENT
-  { Ident $1 }
+  { midnt (Ident $1) $loc }
 ;
 
 incr:
 | INCREMENT expression
-  { PreIncr $2 }
+  { mexpr (PreIncr $2) $loc }
 
 | expression INCREMENT
-  { PostIncr $1 }
+  { mexpr (PostIncr $1) $loc }
 ;
 
 func_call:
 | ident LPAREN separated_list(COMMA, expression) RPAREN
-  { FuncCall($1, $3) }
+  { mexpr (FuncCall ($1, $3)) $loc }
 
 expression:
 (* litterals *)
 | INT_LIT
-  { Int $1 }
+  { mexpr (Int $1) $loc }
 
 | MINUS INT_LIT
-  { Int (-$2) }
+  { mexpr (Int (-$2)) $loc }
 
 | BOOL_LIT
-  { Bool $1 }
+  { mexpr (Bool $1) $loc }
 
 | STRING_LIT
-  { EString $1 }
+  { mexpr (EString $1) $loc }
 
 | SYSTIME
-  { Systime }
+  { mexpr Systime $loc }
 
 | ident
-  { Var $1 }
+  { mexpr (Var $1) $loc }
 
 | incr
   { $1 }
@@ -182,47 +188,47 @@ expression:
 
 (* mathematical expressions *)
 | expression PLUS expression (* { $1 + $3 } *)
-  { Plus($1, $3) }
+  { mexpr (Plus ($1, $3)) $loc }
 
 | expression MINUS expression (* { $1 - $3 } *)
-  { Minus($1, $3) }
+  { mexpr (Minus ($1, $3)) $loc }
 
 | expression TIMES expression (* { $1 * $3 } *)
-  { Times($1, $3) }
+  { mexpr (Times ($1, $3)) $loc }
 
 | expression DIV expression (* { $1 / $3 } *)
-  { Div($1, $3) }
+  { mexpr (Div ($1, $3)) $loc }
 
 | expression MODULO expression
-  { Modulo($1, $3) }
+  { mexpr (Modulo ($1, $3)) $loc }
 
 | expression LESS_EQ expression
-  { LessEq($1, $3) }
+  { mexpr (LessEq ($1, $3)) $loc }
 
 | expression GREATER_EQ expression
-  { GreaterEq($1, $3) }
+  { mexpr (GreaterEq ($1, $3)) $loc }
 
 | expression LESS expression
-  { Less($1, $3) }
+  { mexpr (Less ($1, $3)) $loc }
 
 | expression GREATER expression
-  { Greater($1, $3) }
+  { mexpr (Greater ($1, $3)) $loc }
 
 (* boolean expressions *)
 | expression AND expression
-  { And($1, $3) }
+  { mexpr (And ($1, $3)) $loc }
 
 | expression OR expression
-  { Or($1, $3) }
+  { mexpr (Or ($1, $3)) $loc }
 
 | expression BOOL_EQUALS expression
-  { Equals($1, $3) }
+  { mexpr (Equals ($1, $3)) $loc }
 
 | NOT expression
-  { Not($2) }
+  { mexpr (Not $2) $loc }
 
 | expression TERNARY_QUESTIONMARK expression TERNARY_COLON expression
-  { Ternary($1, $3, $5) }
+  { mexpr (Ternary ($1, $3, $5)) $loc }
 
 | LPAREN expression RPAREN
   { $2 }
