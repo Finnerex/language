@@ -1,7 +1,7 @@
 open Ast
 
 exception Unimplemented
-exception Type_mismatch
+exception Type_mismatch of pos * pos * string
 exception Unknown_type of string
 
 module IdentMap = Map.Make(Ident)
@@ -66,12 +66,12 @@ let rec typecheck_expr (tchk:TypeChk.t) (e:expr_info) : (e_type, exn) result =
       check_pl tchk pel ptl
       |> Result.map (fun _ -> r)
     | Error e -> Error e
-    | _ -> Error Type_mismatch)
-
+    | Ok t -> Error (Type_mismatch (e.pos_start, e.pos_end, string_of_ident i.ident ^ "was expected to be of type TFunc, instead " ^ show_e_type t)))
+    
   | PreIncr e ->
-    Result.bind (typecheck_expr tchk e) (fun t -> if t = TInt then Ok TInt else Error Type_mismatch)
+    Result.bind (typecheck_expr tchk e) (fun t -> if t = TInt then Ok TInt else Error (Type_mismatch (e.pos_start, e.pos_end, "Expected TInt, instead found " ^ show_e_type t)))
   | PostIncr e ->
-    Result.bind (typecheck_expr tchk e) (fun t -> if t = TInt then Ok TInt else Error Type_mismatch)
+    Result.bind (typecheck_expr tchk e) (fun t -> if t = TInt then Ok TInt else Error (Type_mismatch (e.pos_start, e.pos_end, "Expected TInt, instead found " ^ show_e_type t)))
   
   | And (e1, e2) ->
     let t1 = typecheck_expr tchk e1 in
@@ -80,7 +80,9 @@ let rec typecheck_expr (tchk:TypeChk.t) (e:expr_info) : (e_type, exn) result =
     | Ok TBool, Ok TBool -> Ok TBool
     | Error err, _ -> Error err
     | _, Error err -> Error err
-    | _ -> Error Type_mismatch)
+    | Ok TBool, Ok t -> Error (Type_mismatch (e2.pos_start, e2.pos_end, "Expected TBool, instead found " ^ show_e_type t))
+    | Ok t, Ok TBool -> Error (Type_mismatch (e2.pos_start, e2.pos_end, "Expected TBool, instead found " ^ show_e_type t))
+    | Ok t1, Ok t2 -> Error (Type_mismatch (e.pos_start, e.pos_end, "Expected (TBool && TBool), instead found (" ^ show_e_type t1 ^ " && " ^ show_e_type t2 ^ ")")))
   | Or (e1, e2) ->
     let t1 = typecheck_expr tchk e1 in
     let t2 = typecheck_expr tchk e2 in
@@ -88,7 +90,9 @@ let rec typecheck_expr (tchk:TypeChk.t) (e:expr_info) : (e_type, exn) result =
     | Ok TBool, Ok TBool -> Ok TBool
     | Error err, _ -> Error err
     | _, Error err -> Error err
-    | _ -> Error Type_mismatch)
+    | Ok TBool, Ok t -> Error (Type_mismatch (e2.pos_start, e2.pos_end, "Expected TBool, instead found " ^ show_e_type t))
+    | Ok t, Ok TBool -> Error (Type_mismatch (e2.pos_start, e2.pos_end, "Expected TBool, instead found " ^ show_e_type t))
+    | Ok t1, Ok t2 -> Error (Type_mismatch (e.pos_start, e.pos_end, "Expected (TBool || TBool), instead found (" ^ show_e_type t1 ^ " || " ^ show_e_type t2 ^ ")")))
   | Equals (e1, e2) ->
     let t1 = typecheck_expr tchk e1 in
     let t2 = typecheck_expr tchk e2 in
@@ -100,7 +104,7 @@ let rec typecheck_expr (tchk:TypeChk.t) (e:expr_info) : (e_type, exn) result =
   | Not e ->
     (match typecheck_expr tchk e with
     | Ok TBool -> Ok TBool
-    | Ok _ -> Error Type_mismatch
+    | Ok t -> Error (Type_mismatch (e.pos_start, e.pos_end, "Expected TBool, instead found " ^ show_e_type t))
     | Error err -> Error err)
   
   | Greater (e1, e2) ->
@@ -110,7 +114,9 @@ let rec typecheck_expr (tchk:TypeChk.t) (e:expr_info) : (e_type, exn) result =
     | Ok TInt, Ok TInt -> Ok TBool
     | Error err, _ -> Error err
     | _, Error err -> Error err
-    | _ -> Error Type_mismatch)
+    | Ok TInt, Ok t -> Error (Type_mismatch (e2.pos_start, e2.pos_end, "Expected TInt, instead found " ^ show_e_type t))
+    | Ok t, Ok TInt -> Error (Type_mismatch (e2.pos_start, e2.pos_end, "Expected TInt, instead found " ^ show_e_type t))
+    | Ok t1, Ok t2 -> Error (Type_mismatch (e.pos_start, e.pos_end, "Expected (TInt > TInt), instead found (" ^ show_e_type t1 ^ " > " ^ show_e_type t2 ^ ")")))
   | GreaterEq (e1, e2) ->
     let t1 = typecheck_expr tchk e1 in
     let t2 = typecheck_expr tchk e2 in
@@ -118,7 +124,9 @@ let rec typecheck_expr (tchk:TypeChk.t) (e:expr_info) : (e_type, exn) result =
     | Ok TInt, Ok TInt -> Ok TBool
     | Error err, _ -> Error err
     | _, Error err -> Error err
-    | _ -> Error Type_mismatch)
+    | Ok TInt, Ok t -> Error (Type_mismatch (e2.pos_start, e2.pos_end, "Expected TInt, instead found " ^ show_e_type t))
+    | Ok t, Ok TInt -> Error (Type_mismatch (e2.pos_start, e2.pos_end, "Expected TInt, instead found " ^ show_e_type t))
+    | Ok t1, Ok t2 -> Error (Type_mismatch (e.pos_start, e.pos_end, "Expected (TInt >= TInt), instead found (" ^ show_e_type t1 ^ " >= " ^ show_e_type t2 ^ ")")))
   | Less (e1, e2) ->
     let t1 = typecheck_expr tchk e1 in
     let t2 = typecheck_expr tchk e2 in
@@ -126,7 +134,9 @@ let rec typecheck_expr (tchk:TypeChk.t) (e:expr_info) : (e_type, exn) result =
     | Ok TInt, Ok TInt -> Ok TBool
     | Error err, _ -> Error err
     | _, Error err -> Error err
-    | _ -> Error Type_mismatch)
+    | Ok TInt, Ok t -> Error (Type_mismatch (e2.pos_start, e2.pos_end, "Expected TInt, instead found " ^ show_e_type t))
+    | Ok t, Ok TInt -> Error (Type_mismatch (e2.pos_start, e2.pos_end, "Expected TInt, instead found " ^ show_e_type t))
+    | Ok t1, Ok t2 -> Error (Type_mismatch (e.pos_start, e.pos_end, "Expected (TInt < TInt), instead found (" ^ show_e_type t1 ^ " < " ^ show_e_type t2 ^ ")")))
   | LessEq (e1, e2) ->
     let t1 = typecheck_expr tchk e1 in
     let t2 = typecheck_expr tchk e2 in
@@ -134,7 +144,9 @@ let rec typecheck_expr (tchk:TypeChk.t) (e:expr_info) : (e_type, exn) result =
     | Ok TInt, Ok TInt -> Ok TBool
     | Error err, _ -> Error err
     | _, Error err -> Error err
-    | _ -> Error Type_mismatch)
+    | Ok TInt, Ok t -> Error (Type_mismatch (e2.pos_start, e2.pos_end, "Expected TInt, instead found " ^ show_e_type t))
+    | Ok t, Ok TInt -> Error (Type_mismatch (e2.pos_start, e2.pos_end, "Expected TInt, instead found " ^ show_e_type t))
+    | Ok t1, Ok t2 -> Error (Type_mismatch (e.pos_start, e.pos_end, "Expected (TInt <= TInt), instead found (" ^ show_e_type t1 ^ " <= " ^ show_e_type t2 ^ ")")))
   
   | Plus (e1, e2) ->
     let t1 = typecheck_expr tchk e1 in
@@ -143,7 +155,9 @@ let rec typecheck_expr (tchk:TypeChk.t) (e:expr_info) : (e_type, exn) result =
     | Ok TInt, Ok TInt -> Ok TInt
     | Error err, _ -> Error err
     | _, Error err -> Error err
-    | _ -> Error Type_mismatch)
+    | Ok TInt, Ok t -> Error (Type_mismatch (e2.pos_start, e2.pos_end, "Expected TInt, instead found " ^ show_e_type t))
+    | Ok t, Ok TInt -> Error (Type_mismatch (e2.pos_start, e2.pos_end, "Expected TInt, instead found " ^ show_e_type t))
+    | Ok t1, Ok t2 -> Error (Type_mismatch (e.pos_start, e.pos_end, "Expected (TInt + TInt), instead found (" ^ show_e_type t1 ^ " + " ^ show_e_type t2 ^ ")")))
   | Minus (e1, e2) ->
     let t1 = typecheck_expr tchk e1 in
     let t2 = typecheck_expr tchk e2 in
@@ -151,7 +165,9 @@ let rec typecheck_expr (tchk:TypeChk.t) (e:expr_info) : (e_type, exn) result =
     | Ok TInt, Ok TInt -> Ok TInt
     | Error err, _ -> Error err
     | _, Error err -> Error err
-    | _ -> Error Type_mismatch)
+    | Ok TInt, Ok t -> Error (Type_mismatch (e2.pos_start, e2.pos_end, "Expected TInt, instead found " ^ show_e_type t))
+    | Ok t, Ok TInt -> Error (Type_mismatch (e2.pos_start, e2.pos_end, "Expected TInt, instead found " ^ show_e_type t))
+    | Ok t1, Ok t2 -> Error (Type_mismatch (e.pos_start, e.pos_end, "Expected (TInt - TInt), instead found (" ^ show_e_type t1 ^ " - " ^ show_e_type t2 ^ ")")))
   | Times (e1, e2) ->
     let t1 = typecheck_expr tchk e1 in
     let t2 = typecheck_expr tchk e2 in
@@ -159,7 +175,9 @@ let rec typecheck_expr (tchk:TypeChk.t) (e:expr_info) : (e_type, exn) result =
     | Ok TInt, Ok TInt -> Ok TInt
     | Error err, _ -> Error err
     | _, Error err -> Error err
-    | _ -> Error Type_mismatch)
+    | Ok TInt, Ok t -> Error (Type_mismatch (e2.pos_start, e2.pos_end, "Expected TInt, instead found " ^ show_e_type t))
+    | Ok t, Ok TInt -> Error (Type_mismatch (e2.pos_start, e2.pos_end, "Expected TInt, instead found " ^ show_e_type t))
+    | Ok t1, Ok t2 -> Error (Type_mismatch (e.pos_start, e.pos_end, "Expected (TInt * TInt), instead found (" ^ show_e_type t1 ^ " * " ^ show_e_type t2 ^ ")")))
   | Div (e1, e2) ->
     let t1 = typecheck_expr tchk e1 in
     let t2 = typecheck_expr tchk e2 in
@@ -167,7 +185,9 @@ let rec typecheck_expr (tchk:TypeChk.t) (e:expr_info) : (e_type, exn) result =
     | Ok TInt, Ok TInt -> Ok TInt
     | Error err, _ -> Error err
     | _, Error err -> Error err
-    | _ -> Error Type_mismatch)
+    | Ok TInt, Ok t -> Error (Type_mismatch (e2.pos_start, e2.pos_end, "Expected TInt, instead found " ^ show_e_type t))
+    | Ok t, Ok TInt -> Error (Type_mismatch (e2.pos_start, e2.pos_end, "Expected TInt, instead found " ^ show_e_type t))
+    | Ok t1, Ok t2 -> Error (Type_mismatch (e.pos_start, e.pos_end, "Expected (TInt / TInt), instead found (" ^ show_e_type t1 ^ " / " ^ show_e_type t2 ^ ")")))
   | Modulo (e1, e2) ->
     let t1 = typecheck_expr tchk e1 in
     let t2 = typecheck_expr tchk e2 in
@@ -175,7 +195,9 @@ let rec typecheck_expr (tchk:TypeChk.t) (e:expr_info) : (e_type, exn) result =
     | Ok TInt, Ok TInt -> Ok TInt
     | Error err, _ -> Error err
     | _, Error err -> Error err
-    | _ -> Error Type_mismatch)
+    | Ok TInt, Ok t -> Error (Type_mismatch (e2.pos_start, e2.pos_end, "Expected TInt, instead found " ^ show_e_type t))
+    | Ok t, Ok TInt -> Error (Type_mismatch (e2.pos_start, e2.pos_end, "Expected TInt, instead found " ^ show_e_type t))
+    | Ok t1, Ok t2 -> Error (Type_mismatch (e.pos_start, e.pos_end, "Expected (TInt % TInt), instead found (" ^ show_e_type t1 ^ " % " ^ show_e_type t2 ^ ")")))
   
   | Ternary (e1, e2, e3) ->
     let t1 = typecheck_expr tchk e1 in
@@ -186,11 +208,11 @@ let rec typecheck_expr (tchk:TypeChk.t) (e:expr_info) : (e_type, exn) result =
       if t2 = t3 then
         Ok t2
       else
-        Error Type_mismatch
+        Error (Type_mismatch (e2.pos_start, e3.pos_end, "Expression types don't match"))
     | Error err, _,  _ -> Error err
     | _, Error err, _ -> Error err
     | _, _, Error err -> Error err
-    | _ -> Error Type_mismatch)
+    | Ok t, _, _ -> Error (Type_mismatch (e1.pos_start, e1.pos_end, "Expected TBool, instead found " ^ show_e_type t)))
 
 and check_exprs tchk el =
   match el with
@@ -206,10 +228,12 @@ and check_pl tchk pel ptl =
   | pe :: ppel, pt :: pptl -> 
     (match check_pl tchk ppel pptl with
     | Ok () ->
-      if typecheck_expr tchk pe = Ok pt then
-        Ok ()
-      else
-        Error Type_mismatch
+      let t = typecheck_expr tchk pe in
+      Result.bind t (fun t ->
+        if t = pt then
+          Ok ()
+        else
+          Error (Type_mismatch (pe.pos_start, pe.pos_end, "Type of passed argument doesn't match type of parameter")))
     | Error e -> Error e)
   | [], [] -> Ok ()
   | [], _ -> raise (Invalid_argument "list lengths don't match")
@@ -252,7 +276,7 @@ let rec typecheck_statement (s:stmt_info) (tchk:TypeChk.t) (rt) : (TypeChk.t, ex
       if vt = et then
         Ok (TypeChk.add ni et tchk)
       else
-        Error Type_mismatch
+        Error (Type_mismatch (s.pos_start, s.pos_end, "Variable type and expression type don't match"))
     | Error err, _ -> Error err
     | _, Error err -> Error err)
   | Eval e ->
@@ -266,7 +290,7 @@ let rec typecheck_statement (s:stmt_info) (tchk:TypeChk.t) (rt) : (TypeChk.t, ex
       (match typecheck_expr tchk e, check_statements tchk sl rt with
       | Ok TBool, Ok tchk -> typecheck_statement { stmt = (If l); pos_start = s.pos_start; pos_end = s.pos_end } tchk rt
       | Ok TBool, Error err -> Error err
-      | Ok _, _ -> Error Type_mismatch
+      | Ok t, _ -> Error (Type_mismatch (e.pos_start, e.pos_end, "Expected TBool, instead found " ^ show_e_type t))
       | Error err, _ -> Error err))
   | While (e, sl) -> typecheck_statement ({ stmt = If [e, sl]; pos_start = s.pos_start; pos_end = s.pos_end }) tchk rt
   | For (a, e, is, sl) ->
@@ -294,7 +318,7 @@ let rec typecheck_statement (s:stmt_info) (tchk:TypeChk.t) (rt) : (TypeChk.t, ex
       if t = rt then
         Ok tchk
       else
-        Error Type_mismatch
+        Error (Type_mismatch (e.pos_start, e.pos_end, "Return type and expression type don't match"))
     | Error err -> Error err)
   
   | PrintLn e -> typecheck_statement ({ stmt = Print e; pos_start = s.pos_start; pos_end = s.pos_end }) tchk rt

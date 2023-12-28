@@ -14,6 +14,9 @@ module Ident = struct
     match (x, y) with Ident str1, Ident str2 -> compare str1 str2
 end
 
+let string_of_ident = function
+  | Ident.Ident(s) -> s
+
 type ident_info = {
   ident : Ident.t;
   pos_start : pos;

@@ -7,11 +7,11 @@ module IdentMap = Map.Make(Ident);;
 module StLvl =
   struct
     type t = 
-    | StLvl of (Ident.t, (Ident.t list * statement list)) Hashtbl.t * (Ident.t, (e_type * expr)) Hashtbl.t
+    | StLvl of (Ident.t, (Ident.t list * stmt_info list)) Hashtbl.t * (Ident.t, (e_type * expr_info)) Hashtbl.t
     let add_var s i v t =
       match s with
       | StLvl(fm, vm) -> Hashtbl.replace vm i (t, v); StLvl (fm, vm)
-    let rec add_vars s (ivl:(Ident.t * expr * e_type) list) =
+    let rec add_vars s (ivl:(Ident.t * expr_info * e_type) list) =
       match ivl with
       | [] -> s
       | (i, v, t)::ivl2 -> add_vars (add_var s i v t) ivl2
@@ -67,7 +67,7 @@ module PrgmSt =
           | s::new_sl ->
             let new_s = StLvl.add_var s i v t in
             PrgmSt (new_s::new_sl)))
-    let add_vars p (ivl:(Ident.t * expr * e_type) list) =
+    let add_vars p (ivl:(Ident.t * expr_info * e_type) list) =
       match p with
       | PrgmSt(sl) ->
         (match sl with

@@ -32,8 +32,8 @@ let () =
     let _ = match Typechecker.check_statements (Typechecker.TypeChk.empty ()) statements Ast.TUnit with
     | Ok _ -> 
       Printf.printf "Interpreting %s:\n" Sys.argv.(1);
-      let toplevel = Interpreter.eval_statements statements State.PrgmSt.empty in
-      Interpreter.eval_statement toplevel (Ast.Eval (Ast.FuncCall (Ident "main", [])))
+      (* let toplevel = Interpreter.eval_statements statements State.PrgmSt.empty in
+      Interpreter.eval_statement toplevel (Ast.Eval (Ast.FuncCall (Ident "main", []))) *)
     | Error err -> raise err
     in ()
 
@@ -42,3 +42,5 @@ let () =
     let pos = lexbuf.lex_curr_p in
     Printf.printf "Syntax error at line %d, column %d\n"
       pos.pos_lnum (pos.pos_cnum - pos.pos_bol)
+  | Typechecker.Type_mismatch (ps, _, msg) ->
+    Printf.printf "Error: Type mismatch at Line %d, character %d:\n%s\n" ps.line_num ps.char_num msg
