@@ -1,5 +1,11 @@
 (* ass syntax tree *)
 
+type pos = {
+  line_num : int;
+  char_num : int;
+}
+[@@deriving show]
+
 (* Identifier *)
 module Ident = struct
   type t = Ident of string [@@deriving show]
@@ -7,6 +13,16 @@ module Ident = struct
   let compare x y =
     match (x, y) with Ident str1, Ident str2 -> compare str1 str2
 end
+
+let string_of_ident = function
+  | Ident.Ident(s) -> s
+
+type ident_info = {
+  ident : Ident.t;
+  pos_start : pos;
+  pos_end : pos;
+}
+[@@deriving show]
 
 type e_type =
 | TInt
@@ -26,48 +42,59 @@ type expr =
 
 | Systime
 
-| Var of Ident.t
-| TypedExpr of e_type * expr
+| Var of ident_info
 
-| FuncCall of Ident.t * expr list
+| FuncCall of ident_info * expr_info list
 
-| PreIncr of expr
-| PostIncr of expr
+| PreIncr of expr_info
+| PostIncr of expr_info
 
 (* boolean expressions *)
-| And of expr * expr
-| Or of expr * expr
-| Equals of expr * expr
-| Not of expr
+| And of expr_info * expr_info
+| Or of expr_info * expr_info
+| Equals of expr_info * expr_info
+| Not of expr_info
 
-| Greater of expr * expr
-| GreaterEq of expr * expr
-| Less of expr * expr
-| LessEq of expr * expr
+| Greater of expr_info * expr_info
+| GreaterEq of expr_info * expr_info
+| Less of expr_info * expr_info
+| LessEq of expr_info * expr_info
 
 (* mathematical expressions *)
-| Plus of expr * expr
-| Minus of expr * expr
-| Times of expr * expr
-| Div of expr * expr
-| Modulo of expr * expr
+| Plus of expr_info * expr_info
+| Minus of expr_info * expr_info
+| Times of expr_info * expr_info
+| Div of expr_info * expr_info
+| Modulo of expr_info * expr_info
 
-| Ternary of expr * expr * expr
+| Ternary of expr_info * expr_info * expr_info
 [@@deriving show]
+
+and expr_info = {
+  expr : expr;
+  pos_start : pos;
+  pos_end : pos;
+}
 
 (* Statements *)
 type statement =
-| Assign of Ident.t * Ident.t * expr
-| Eval of expr
+| Assign of ident_info * ident_info * expr_info
+| Eval of expr_info
 
-| If of (expr * statement list) list
+| If of (expr_info * stmt_info list) list
 
-| While of expr * statement list
-| For of statement * expr * statement * statement list
+| While of expr_info * stmt_info list
+| For of stmt_info * expr_info * stmt_info * stmt_info list
 
-| FuncDef of Ident.t * Ident.t * (Ident.t * Ident.t) list * statement list
-| Return of expr
+| FuncDef of ident_info * ident_info * (ident_info * ident_info) list * stmt_info list
+| Return of expr_info
 
-| Print of expr
-| PrintLn of expr
+| Print of expr_info
+| PrintLn of expr_info
 [@@deriving show]
+
+and stmt_info = {
+  stmt : statement;
+  pos_start : pos;
+  pos_end : pos;
+}
