@@ -43,7 +43,6 @@ type expr =
 | Systime
 
 | Var of ident_info
-| TypedExpr of e_type * expr_info
 
 | FuncCall of ident_info * expr_info list
 

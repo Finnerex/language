@@ -56,7 +56,6 @@ let rec typecheck_expr (tchk:TypeChk.t) (e:expr_info) : (e_type, exn) result =
   | Bool _ -> Ok TBool
   | EString _ -> Ok TString
   | Unit -> Ok TUnit
-  | TypedExpr (t, _) -> Ok t
   | Var i -> TypeChk.gamma i tchk
   | Systime -> Ok TInt
 
